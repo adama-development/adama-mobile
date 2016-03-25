@@ -20,9 +20,14 @@ You have to retrieve the project dependencies in order to make it work :
 
 Then, you'll need to trigger the development workflow :
 
-	gulp serve  
+	gulp serve
 
 Application is available on http://localhost:3000.
+
+Multiple demo are available :
+
+	gulp serve --demo=simple (same as 'gulp serve')
+	gulp serve --demo=with-menu
 
 
 
