@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+		<title></title>
+		<link href="dist/main.css" rel="stylesheet">
+	
+		<!-- ionic/angularjs js -->
+		<script src="lib/ionic/js/ionic.bundle.js"></script>
+		<script src="lib/ngCordova/dist/ng-cordova.js"></script>
+	
+		<!-- vendors -->
+		<script src="lib/angular-cookies/angular-cookies.min.js"></script>
+		<script src="lib/angular-resource/angular-resource.min.js"></script>
+		<script src="lib/angular-local-storage/dist/angular-local-storage.js"></script>
+		<script src="lib/angular-translate/angular-translate.js"></script>
+		<script src="lib/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
+		<script src="lib/angular-translate-storage-local/angular-translate-storage-local.js"></script>
+		<script src="lib/angular-messages/angular-messages.js"></script>
+	
+		<!-- adama-mobile -->
+		<script src="adama-mobile/app.js"></script>
+		<script src="adama-mobile/auth/app.js"></script>
+		<script src="adama-mobile/auth/accessDenied.controller.js"></script>
+		<script src="adama-mobile/auth/signin.controller.js"></script>
+		<script src="adama-mobile/btn-signout/app.js"></script>
+		<script src="adama-mobile/btn-signout/btn-signout.directive.js"></script>
+		<script src="adama-mobile/datasources/language.datasource.js"></script>
+		<script src="adama-mobile/datasources/principal-identity.datasource.js"></script>
+		<script src="adama-mobile/jhipster/app.js"></script>
+		<script src="adama-mobile/jhipster/jhipster-constant.service.js"></script>
+		<script src="adama-mobile/jhipster/jhipster-resource-config.service.js"></script>
+		<script src="adama-mobile/jhipster/components/alert/alert.directive.js"></script>
+		<script src="adama-mobile/jhipster/components/alert/alert.service.js"></script>
+		<script src="adama-mobile/jhipster/components/auth/provider/auth.xauth.service.js"></script>
+		<script src="adama-mobile/jhipster/components/auth/services/account.service.js"></script>
+		<script src="adama-mobile/jhipster/components/auth/services/password.service.js"></script>
+		<script src="adama-mobile/jhipster/components/auth/auth.service.js"></script>
+		<script src="adama-mobile/jhipster/components/auth/authority.directive.js"></script>
+		<script src="adama-mobile/jhipster/components/auth/principal.service.js"></script>
+		<script src="adama-mobile/jhipster/components/interceptor/auth.interceptor.js"></script>
+		<script src="adama-mobile/jhipster/components/interceptor/errorhandler.interceptor.js"></script>
+		<script src="adama-mobile/jhipster/components/interceptor/notification.interceptor.js"></script>
+		<script src="adama-mobile/jhipster/components/util/base64.service.js"></script>
+		<script src="adama-mobile/jhipster/components/util/parse-links.service.js"></script>
+		<script src="adama-mobile/resources/user.resource.js"></script>
+		<script src="adama-mobile/services/language.provider.js"></script>
+		<script src="adama-mobile/services/page-title.service.js"></script>
+	
+		<!-- mock -->
+		<script src="lib/ngCordova/dist/ng-cordova-mocks.js"></script>
+		<script src="lib/angular-mocks/angular-mocks.js"></script>
+		<script src="mock/app.js"></script>
+		<script src="mock/mock-settings.constant.js"></script>
+		<script src="mock/auth.js"></script>
+		<script src="mock/basic.js"></script>
+		<script src="mock/httpBackend-with-latency.decorator.js"></script>
+		<script src="mock/users.js"></script>
+		<script>
+			angular.module('adama-mobile').config(function(mockSettings){
+				mockSettings.isLoggedAtStartup = true;
+			});
+		</script>
+	
+		<!-- app' specifics -->
+		<!-- <script src="scripts/app.js"></script> -->
+		<script src="scripts/app-config.js"></script>
+		<script src="modules/main/app.js"></script>
+		<script src="modules/main/main.controller.js"></script>
+	
+		<script>
+			angular.module('adamaDemoApp').config(function(jHipsterConstant){
+				jHipsterConstant.apiBase = '/';
+			});
+		</script>
+	</head>
+	<body ng-app="adamaDemoApp">
+		<ion-nav-view></ion-nav-view>
+	</body>
+</html>

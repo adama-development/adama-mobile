@@ -1,0 +1,40 @@
+<ion-view hide-nav-bar="true">
+	<ion-content overflow-scroll="false" padding="true" scroll="true" class="background">
+		<div class="logo-placeholder"></div>
+ 		<form
+			method="post"
+			name="signinForm"
+			ng-submit="ctrl.signin(userName, userPassword)"
+			class="signin-form"
+		>
+			<label class="item item-input">
+				<input
+					type="text"
+					id="userName"
+					class="input-label"
+					name="userName"
+					ng-model="userName"
+					placeholder="{{ 'SIGNIN_USERNAME' | translate }}"
+					required
+				/>
+			</label>
+			<label class="item item-input">
+				<input
+					type="password"
+					id="password"
+					class="input-label"
+					name="userPassword"
+					ng-model="userPassword"
+					placeholder="{{ 'SIGNIN_PASSWORD' | translate }}"
+					required
+				/>
+			</label>
+			<button
+				type="submit"
+				class="button button-assertive button-block"
+				ng-disabled="signinForm.$invalid"
+				translate
+			>SIGNIN_SUBMIT</button>
+		</form>
+	</ion-content>
+</ion-view>

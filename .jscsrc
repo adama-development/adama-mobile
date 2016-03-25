@@ -1,0 +1,48 @@
+{
+	"disallowEmptyBlocks": true,
+	"disallowFunctionDeclarations": true,
+	"disallowKeywordsOnNewLine": ["else"],
+	"disallowMixedSpacesAndTabs": "smart",
+	"disallowMultipleLineBreaks": true,
+	"disallowMultipleLineStrings": true,
+	"disallowMultipleSpaces": true,
+	"disallowMultipleVarDecl": "exceptUndefined",
+	"disallowNewlineBeforeBlockStatements": true,
+	"disallowTrailingComma": true,
+	"maximumLineLength": 209,
+	"requireBlocksOnNewline": true,
+	"requireCamelCaseOrUpperCaseIdentifiers": true,
+	"requireCommaBeforeLineBreak": true,
+	"requireCurlyBraces": [
+		"if",
+		"else",
+		"for",
+		"while",
+		"do",
+		"try",
+		"catch"
+	],
+	"requireDotNotation": "except_snake_case",
+	"requireLineBreakAfterVariableAssignment": true,
+	"requireLineFeedAtFileEnd": true,
+	"requireParenthesesAroundIIFE": true,
+	"requireSemicolons": true,
+	"requireSpaceAfterBinaryOperators": [
+		"=",
+		",",
+		"+",
+		"-",
+		"/",
+		"*",
+		"==",
+		"===",
+		"!=",
+		"!=="
+	],
+	"requireSpaceAfterLineComment": true,
+	"validateIndentation": "\t",
+	"validateQuoteMarks": {
+		"mark": "'",
+		"escape": true
+	}
+}
