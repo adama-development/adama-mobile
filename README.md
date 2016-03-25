@@ -27,6 +27,7 @@ Application is available on http://localhost:3000.
 Multiple demo are available :
 
 	gulp serve --demo=simple (same as 'gulp serve')
+	gulp serve --demo=crud
 	gulp serve --demo=with-menu
 
 

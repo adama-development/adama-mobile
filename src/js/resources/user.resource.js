@@ -2,10 +2,10 @@
 
 angular.module('adama-mobile').factory('User', function($resource, jHipsterConstant, jHipsterResourceConfig) {
 	var config = angular.extend({}, jHipsterResourceConfig, {
-		'delete' : {
-			method : 'DELETE',
-			params : {
-				login : '@login'
+		'delete': {
+			method: 'DELETE',
+			params: {
+				login: '@login'
 			}
 		}
 	});

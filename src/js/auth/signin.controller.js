@@ -12,7 +12,7 @@ angular.module('adama-mobile').controller('SigninCtrl', function($rootScope, $st
 			} else {
 				$rootScope.back();
 			}
-		}).catch(function(){
+		}).catch(function() {
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
 				title: translateFn('SIGNIN_ERROR_TITLE'),

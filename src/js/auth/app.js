@@ -11,7 +11,7 @@ angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant)
 
 	$stateProvider.state('auth.signin', {
 		url: '/',
-		templateUrl: function(){
+		templateUrl: function() {
 			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authSignin;
 		},
 		controller: 'SigninCtrl',
@@ -24,7 +24,7 @@ angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant)
 
 	$stateProvider.state('auth.accessDenied', {
 		url: '/accessDenied',
-		templateUrl: function(){
+		templateUrl: function() {
 			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authAccessDenied;
 		},
 		controller: 'AccessDeniedCtrl',

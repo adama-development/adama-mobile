@@ -3,12 +3,12 @@
 'use strict';
 
 angular.module('adama-mobile', [ //
-'ionic',//
-'pascalprecht.translate', //
-'ngCookies', //
-'ngResource', //
-'LocalStorageModule', //
-'ngMessages' //
+	'ionic', //
+	'pascalprecht.translate', //
+	'ngCookies', //
+	'ngResource', //
+	'LocalStorageModule', //
+	'ngMessages' //
 ]);
 
 angular.module('adama-mobile').run(function($ionicPlatform) {
@@ -41,9 +41,9 @@ angular.module('adama-mobile').config(function($translateProvider) {
 
 	$translateProvider.useLocalStorage();
 
-	$translateProvider.registerAvailableLanguageKeys([ 'en', 'fr' ], {
-		'en_*' : 'en',
-		'fr_*' : 'fr'
+	$translateProvider.registerAvailableLanguageKeys(['en', 'fr'], {
+		'en_*': 'en',
+		'fr_*': 'fr'
 	});
 
 	$translateProvider.determinePreferredLanguage().fallbackLanguage('en');
@@ -51,13 +51,13 @@ angular.module('adama-mobile').config(function($translateProvider) {
 
 angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant) {
 	$stateProvider.state('app', {
-		abstract : true,
-		url : '/app',
-		templateUrl : function() {
+		abstract: true,
+		url: '/app',
+		templateUrl: function() {
 			return jHipsterConstant.adamaMobileToolkitTemplateUrl.app;
 		},
-		resolve : {
-			authorize : function(Auth) {
+		resolve: {
+			authorize: function(Auth) {
 				return Auth.authorize();
 			}
 		}

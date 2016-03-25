@@ -8,7 +8,7 @@ angular.module('adama-mobile').directive('btnSignout', function() {
 		bindToController: {},
 		controller: function(Auth, $state) {
 			var ctrl = this;
-			ctrl.signout = function(){
+			ctrl.signout = function() {
 				Auth.logout();
 				$state.go('auth.signin');
 			};
