@@ -16,7 +16,7 @@
     "gulp-clean": "0.3.2",
     "gulp-concat": "2.6.0",
     "gulp-cssnano": "2.1.1",
-    "gulp-jsbeautifier": "2.0.2",
+    "gulp-jsbeautifier": "2.0.3",
     "gulp-jscs": "3.0.2",
     "gulp-jshint": "2.0.0",
     "gulp-load-plugins": "1.2.0",
@@ -38,5 +38,6 @@
   },
   "engines": {
     "node": ">=0.10.0"
-  }
+  },
+  "private": true
 }

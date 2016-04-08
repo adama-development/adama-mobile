@@ -5,17 +5,18 @@
     "angular-mocks": "1.5.0"
   },
   "dependencies": {
-    "angular-i18n": "1.5.0",
-    "angular-local-storage": "0.2.3",
-    "angular-messages": "1.5.0",
-    "angular-resource": "1.5.0",
-    "angular-translate": "2.9.1",
-    "angular-translate-storage-local": "2.9.1",
+    "angular-i18n": "1.5.3",
+    "angular-local-storage": "0.2.7",
+    "angular-messages": "1.5.3",
+    "angular-resource": "1.5.3",
+    "angular-translate": "2.11.0",
+    "angular-translate-storage-local": "2.11.0",
     "ionic": "driftyco/ionic-bower#1.2.4",
     "ngCordova": "0.1.24-alpha"
   },
   "resolutions": {
     "angular": "1.4.3",
-    "angular-translate": "2.9.1"
+    "angular-translate": "2.11.0",
+    "angular-translate-storage-cookie": "2.11.0"
   }
 }
