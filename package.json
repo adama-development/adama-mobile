@@ -6,8 +6,7 @@
     "type": "git",
     "href": "https://bitbucket.org/adama/adama_mobile"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "browser-sync": "2.11.2",
     "gulp": "3.9.1",
