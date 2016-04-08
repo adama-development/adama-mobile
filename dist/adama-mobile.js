@@ -646,6 +646,134 @@ angular.module('adama-mobile')
 
 	});
 
+/*jshint bitwise: false*/
+'use strict';
+
+angular.module('adama-mobile').service('Base64', function() {
+	var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	this.encode = function(input) {
+		var output = '';
+		var chr1, chr2, enc1, enc2, enc3;
+		var chr3 = '';
+		var enc4 = '';
+		var i = 0;
+
+		while (i < input.length) {
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+
+			output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
+			chr1 = chr2 = chr3 = '';
+			enc1 = enc2 = enc3 = enc4 = '';
+		}
+
+		return output;
+	};
+
+	this.decode = function(input) {
+		var output = '';
+		var chr1, chr2, enc1, enc2, enc3;
+		var chr3 = '';
+		var enc4 = '';
+		var i = 0;
+
+		// remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+		while (i < input.length) {
+			enc1 = keyStr.indexOf(input.charAt(i++));
+			enc2 = keyStr.indexOf(input.charAt(i++));
+			enc3 = keyStr.indexOf(input.charAt(i++));
+			enc4 = keyStr.indexOf(input.charAt(i++));
+
+			chr1 = (enc1 << 2) | (enc2 >> 4);
+			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+			chr3 = ((enc3 & 3) << 6) | enc4;
+
+			output = output + String.fromCharCode(chr1);
+
+			if (enc3 !== 64) {
+				output = output + String.fromCharCode(chr2);
+			}
+			if (enc4 !== 64) {
+				output = output + String.fromCharCode(chr3);
+			}
+
+			chr1 = chr2 = chr3 = '';
+			enc1 = enc2 = enc3 = enc4 = '';
+		}
+	};
+}).factory('StorageService', ["$window", function($window) {
+	return {
+
+		get: function(key) {
+			return JSON.parse($window.localStorage.getItem(key));
+		},
+
+		save: function(key, data) {
+			$window.localStorage.setItem(key, JSON.stringify(data));
+		},
+
+		remove: function(key) {
+			$window.localStorage.removeItem(key);
+		},
+
+		clearAll: function() {
+			$window.localStorage.clear();
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile')
+	.service('ParseLinks', function() {
+		this.parse = function(header) {
+			if (header.length === 0) {
+				throw new Error('input must not be of zero length');
+			}
+
+			// Split parts by comma
+			var parts = header.split(',');
+			var links = {};
+			// Parse each part into a named link
+			angular.forEach(parts, function(p) {
+				var section = p.split(';');
+				if (section.length !== 2) {
+					throw new Error('section could not be split on ";"');
+				}
+				var url = section[0].replace(/<(.*)>/, '$1').trim();
+				var queryString = {};
+				url.replace(
+					new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
+					function($0, $1, $2, $3) {
+						queryString[$1] = $3;
+					}
+				);
+				var page = queryString.page;
+				if (angular.isString(page)) {
+					page = parseInt(page);
+				}
+				var name = section[1].replace(/rel='(.*)'/, '$1').trim();
+				links[name] = page;
+			});
+
+			return links;
+		};
+	});
+
 'use strict';
 
 angular.module('adama-mobile')
@@ -972,134 +1100,6 @@ angular.module('adama-mobile').factory('notificationInterceptor', ["$q", "AlertS
 		}
 	};
 }]);
-
-/*jshint bitwise: false*/
-'use strict';
-
-angular.module('adama-mobile').service('Base64', function() {
-	var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-	this.encode = function(input) {
-		var output = '';
-		var chr1, chr2, enc1, enc2, enc3;
-		var chr3 = '';
-		var enc4 = '';
-		var i = 0;
-
-		while (i < input.length) {
-			chr1 = input.charCodeAt(i++);
-			chr2 = input.charCodeAt(i++);
-			chr3 = input.charCodeAt(i++);
-
-			enc1 = chr1 >> 2;
-			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-			enc4 = chr3 & 63;
-
-			if (isNaN(chr2)) {
-				enc3 = enc4 = 64;
-			} else if (isNaN(chr3)) {
-				enc4 = 64;
-			}
-
-			output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
-			chr1 = chr2 = chr3 = '';
-			enc1 = enc2 = enc3 = enc4 = '';
-		}
-
-		return output;
-	};
-
-	this.decode = function(input) {
-		var output = '';
-		var chr1, chr2, enc1, enc2, enc3;
-		var chr3 = '';
-		var enc4 = '';
-		var i = 0;
-
-		// remove all characters that are not A-Z, a-z, 0-9, +, /, or =
-		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
-
-		while (i < input.length) {
-			enc1 = keyStr.indexOf(input.charAt(i++));
-			enc2 = keyStr.indexOf(input.charAt(i++));
-			enc3 = keyStr.indexOf(input.charAt(i++));
-			enc4 = keyStr.indexOf(input.charAt(i++));
-
-			chr1 = (enc1 << 2) | (enc2 >> 4);
-			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-			chr3 = ((enc3 & 3) << 6) | enc4;
-
-			output = output + String.fromCharCode(chr1);
-
-			if (enc3 !== 64) {
-				output = output + String.fromCharCode(chr2);
-			}
-			if (enc4 !== 64) {
-				output = output + String.fromCharCode(chr3);
-			}
-
-			chr1 = chr2 = chr3 = '';
-			enc1 = enc2 = enc3 = enc4 = '';
-		}
-	};
-}).factory('StorageService', ["$window", function($window) {
-	return {
-
-		get: function(key) {
-			return JSON.parse($window.localStorage.getItem(key));
-		},
-
-		save: function(key, data) {
-			$window.localStorage.setItem(key, JSON.stringify(data));
-		},
-
-		remove: function(key) {
-			$window.localStorage.removeItem(key);
-		},
-
-		clearAll: function() {
-			$window.localStorage.clear();
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile')
-	.service('ParseLinks', function() {
-		this.parse = function(header) {
-			if (header.length === 0) {
-				throw new Error('input must not be of zero length');
-			}
-
-			// Split parts by comma
-			var parts = header.split(',');
-			var links = {};
-			// Parse each part into a named link
-			angular.forEach(parts, function(p) {
-				var section = p.split(';');
-				if (section.length !== 2) {
-					throw new Error('section could not be split on ";"');
-				}
-				var url = section[0].replace(/<(.*)>/, '$1').trim();
-				var queryString = {};
-				url.replace(
-					new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
-					function($0, $1, $2, $3) {
-						queryString[$1] = $3;
-					}
-				);
-				var page = queryString.page;
-				if (angular.isString(page)) {
-					page = parseInt(page);
-				}
-				var name = section[1].replace(/rel='(.*)'/, '$1').trim();
-				links[name] = page;
-			});
-
-			return links;
-		};
-	});
 
 'use strict';
 
