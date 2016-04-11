@@ -8,6 +8,7 @@
 			class="signin-form"
 		>
 			<label class="item item-input">
+				<span class="sr-only" translate>SIGNIN_USERNAME</span>
 				<input
 					type="text"
 					id="userName"
@@ -19,6 +20,7 @@
 				/>
 			</label>
 			<label class="item item-input">
+				<span class="sr-only" translate>SIGNIN_PASSWORD</span>
 				<input
 					type="password"
 					id="password"
@@ -36,5 +38,11 @@
 				translate
 			>SIGNIN_SUBMIT</button>
 		</form>
+		<div class="signin-addon-actions">
+			<a
+				ui-sref="^.recoverPassword"
+				translate
+			>SIGNIN_FORGET_PASSWORD</a>
+		</div>
 	</ion-content>
 </ion-view>

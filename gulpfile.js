@@ -125,7 +125,7 @@ gulp.task('serve', [ 'js', 'css' ], function() {
 		open : false
 	});
 
-	gulp.watch('demo/**').on('change', browserSync.reload);
+	gulp.watch('demo*/**').on('change', browserSync.reload);
 	gulp.watch('mocks/**').on('change', browserSync.reload);
 	gulp.watch(config.mainPath + 'js/**/*.html').on('change', browserSync.reload);
 	gulp.watch([ config.mainPath + 'js/**/*.js' ], [ 'js' ]);

@@ -9666,6 +9666,16 @@ a.button {
   -webkit-transition-duration: 0s;
   transition-duration: 0s; }
 
+.sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px; }
+
 .signin-form input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px white inset; }
 
@@ -9674,3 +9684,6 @@ a.button {
   .signin-form label input {
     max-width: none;
     padding-right: 0; }
+
+.signin-addon-actions {
+  text-align: right; }

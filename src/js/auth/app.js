@@ -22,6 +22,19 @@ angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant)
 		}
 	});
 
+	$stateProvider.state('auth.recoverPassword', {
+		url: '/recoverPassword',
+		templateUrl: function() {
+			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authRecover;
+		},
+		controller: 'RecoverPasswordCtrl',
+		controllerAs: 'ctrl',
+		data: {
+			pageTitle: 'RECOVER',
+			authorities: []
+		}
+	});
+
 	$stateProvider.state('auth.accessDenied', {
 		url: '/accessDenied',
 		templateUrl: function() {
@@ -48,6 +61,17 @@ angular.module('adama-mobile').config(function($translateProvider) {
 		'SIGNIN_SUBMIT': 'Démarrer la session',
 		'SIGNIN_ERROR_TITLE': 'Erreur d\'authentification',
 		'SIGNIN_ERROR_MESSAGE': 'Identifiant ou mot de passe incorrect.',
+		'RECOVER': 'Récupération de mot de passe',
+		'RECOVER_INTRO': 'Saisissez votre email pour récupérer votre mot de passe',
+		'RECOVER_MAIL': 'Email',
+		'RECOVER_MAIL_REQUIRED': 'L\'email est obligatoire',
+		'RECOVER_MAIL_EMAIL': 'L\'email n\'est pas au bon format',
+		'RECOVER_SUBMIT': 'Récupérer mon mot de passe',
+		'RECOVER_BACK_TO_LOGIN': 'Retour à l\'identificaition',
+		'RECOVER_SUCCESS': 'Consultez votre email pour connaître comment réinitialiser votre mot de passe.',
+		'RECOVER_ERROR_TITLE': 'Erreur',
+		'RECOVER_ERROR_GENERIC': 'Erreur lors de la récupération du mot de passe.',
+		'RECOVER_ERROR_EMAIL_NOT_EXIST': 'L\'email n\'existe pas',
 		'ACCESS_DENIED_BACK_TO_HOME': 'Retour à l\'accueil',
 		'ACCESS_DENIED': 'Accès interdit',
 		'ACCESS_DENIED_INTRO': 'Vous n\'avez pas suffisamment de droits d\'accéder à cette page.'
@@ -64,7 +88,17 @@ angular.module('adama-mobile').config(function($translateProvider) {
 		'SIGNIN_SUBMIT': 'Start session',
 		'SIGNIN_ERROR_TITLE': 'Authentication error',
 		'SIGNIN_ERROR_MESSAGE': 'Username or password are incorrect.',
+		'RECOVER': 'Recover password',
+		'RECOVER_INTRO': 'Set your email to recover your password',
+		'RECOVER_MAIL': 'Email',
+		'RECOVER_MAIL_REQUIRED': 'Email is required',
+		'RECOVER_MAIL_EMAIL': 'Email does not respect the right format',
 		'RECOVER_SUBMIT': 'Retrieve my password',
+		'RECOVER_BACK_TO_LOGIN': 'Back to signin',
+		'RECOVER_SUCCESS': 'Check your e-mails for details on how to reset your password.',
+		'RECOVER_ERROR_TITLE': 'Error',
+		'RECOVER_ERROR_GENERIC': 'Recovering error.',
+		'RECOVER_ERROR_EMAIL_NOT_EXIST': 'E-Mail address isn\'t registered! Please check and try again',
 		'ACCESS_DENIED_BACK_TO_HOME': 'Back to home',
 		'ACCESS_DENIED': 'Access denied',
 		'ACCESS_DENIED_INTRO': 'You do not have enough privileges to access this page.'

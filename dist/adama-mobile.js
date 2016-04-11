@@ -108,6 +108,19 @@ angular.module('adama-mobile').config(["$stateProvider", "jHipsterConstant", fun
 		}
 	});
 
+	$stateProvider.state('auth.recoverPassword', {
+		url: '/recoverPassword',
+		templateUrl: function() {
+			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authRecover;
+		},
+		controller: 'RecoverPasswordCtrl',
+		controllerAs: 'ctrl',
+		data: {
+			pageTitle: 'RECOVER',
+			authorities: []
+		}
+	});
+
 	$stateProvider.state('auth.accessDenied', {
 		url: '/accessDenied',
 		templateUrl: function() {
@@ -134,6 +147,17 @@ angular.module('adama-mobile').config(["$translateProvider", function($translate
 		'SIGNIN_SUBMIT': 'Démarrer la session',
 		'SIGNIN_ERROR_TITLE': 'Erreur d\'authentification',
 		'SIGNIN_ERROR_MESSAGE': 'Identifiant ou mot de passe incorrect.',
+		'RECOVER': 'Récupération de mot de passe',
+		'RECOVER_INTRO': 'Saisissez votre email pour récupérer votre mot de passe',
+		'RECOVER_MAIL': 'Email',
+		'RECOVER_MAIL_REQUIRED': 'L\'email est obligatoire',
+		'RECOVER_MAIL_EMAIL': 'L\'email n\'est pas au bon format',
+		'RECOVER_SUBMIT': 'Récupérer mon mot de passe',
+		'RECOVER_BACK_TO_LOGIN': 'Retour à l\'identificaition',
+		'RECOVER_SUCCESS': 'Consultez votre email pour connaître comment réinitialiser votre mot de passe.',
+		'RECOVER_ERROR_TITLE': 'Erreur',
+		'RECOVER_ERROR_GENERIC': 'Erreur lors de la récupération du mot de passe.',
+		'RECOVER_ERROR_EMAIL_NOT_EXIST': 'L\'email n\'existe pas',
 		'ACCESS_DENIED_BACK_TO_HOME': 'Retour à l\'accueil',
 		'ACCESS_DENIED': 'Accès interdit',
 		'ACCESS_DENIED_INTRO': 'Vous n\'avez pas suffisamment de droits d\'accéder à cette page.'
@@ -150,11 +174,48 @@ angular.module('adama-mobile').config(["$translateProvider", function($translate
 		'SIGNIN_SUBMIT': 'Start session',
 		'SIGNIN_ERROR_TITLE': 'Authentication error',
 		'SIGNIN_ERROR_MESSAGE': 'Username or password are incorrect.',
+		'RECOVER': 'Recover password',
+		'RECOVER_INTRO': 'Set your email to recover your password',
+		'RECOVER_MAIL': 'Email',
+		'RECOVER_MAIL_REQUIRED': 'Email is required',
+		'RECOVER_MAIL_EMAIL': 'Email does not respect the right format',
 		'RECOVER_SUBMIT': 'Retrieve my password',
+		'RECOVER_BACK_TO_LOGIN': 'Back to signin',
+		'RECOVER_SUCCESS': 'Check your e-mails for details on how to reset your password.',
+		'RECOVER_ERROR_TITLE': 'Error',
+		'RECOVER_ERROR_GENERIC': 'Recovering error.',
+		'RECOVER_ERROR_EMAIL_NOT_EXIST': 'E-Mail address isn\'t registered! Please check and try again',
 		'ACCESS_DENIED_BACK_TO_HOME': 'Back to home',
 		'ACCESS_DENIED': 'Access denied',
 		'ACCESS_DENIED_INTRO': 'You do not have enough privileges to access this page.'
 	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').controller('RecoverPasswordCtrl', ["$filter", "$ionicPopup", "Auth", function($filter, $ionicPopup, Auth) {
+	var ctrl = this;
+	ctrl.recover = function(userEmail) {
+		ctrl.recoverSuccess = false;
+		ctrl.recoverError = false;
+		ctrl.errorEmailNotExists = false;
+		ctrl.loading = true;
+		Auth.resetPasswordInit(userEmail).then(function() {
+			ctrl.recoverSuccess = true;
+		}).catch(function(response) {
+			var messageKey = 'RECOVER_ERROR_GENERIC';
+			if (response.status === 400 && response.data === 'e-mail address not registered') {
+				messageKey = 'RECOVER_ERROR_EMAIL_NOT_EXIST';
+			}
+			var translateFn = $filter('translate');
+			$ionicPopup.alert({
+				title: translateFn('RECOVER_ERROR_TITLE'),
+				template: translateFn(messageKey)
+			});
+		}).finally(function() {
+			ctrl.loading = false;
+		});
+	};
 }]);
 
 'use strict';
@@ -286,7 +347,8 @@ angular.module('adama-mobile').constant('jHipsterConstant', {
 	adamaMobileToolkitTemplateUrl: {
 		app: 'adama-mobile/app.html',
 		authAccessDenied: 'adama-mobile/auth/accessDenied.html',
-		authSignin: 'adama-mobile/auth/signin.html'
+		authSignin: 'adama-mobile/auth/signin.html',
+		authRecover: 'adama-mobile/auth/recoverPassword.html'
 	}
 });
 
@@ -646,196 +708,6 @@ angular.module('adama-mobile')
 
 	});
 
-/*jshint bitwise: false*/
-'use strict';
-
-angular.module('adama-mobile').service('Base64', function() {
-	var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-	this.encode = function(input) {
-		var output = '';
-		var chr1, chr2, enc1, enc2, enc3;
-		var chr3 = '';
-		var enc4 = '';
-		var i = 0;
-
-		while (i < input.length) {
-			chr1 = input.charCodeAt(i++);
-			chr2 = input.charCodeAt(i++);
-			chr3 = input.charCodeAt(i++);
-
-			enc1 = chr1 >> 2;
-			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-			enc4 = chr3 & 63;
-
-			if (isNaN(chr2)) {
-				enc3 = enc4 = 64;
-			} else if (isNaN(chr3)) {
-				enc4 = 64;
-			}
-
-			output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
-			chr1 = chr2 = chr3 = '';
-			enc1 = enc2 = enc3 = enc4 = '';
-		}
-
-		return output;
-	};
-
-	this.decode = function(input) {
-		var output = '';
-		var chr1, chr2, enc1, enc2, enc3;
-		var chr3 = '';
-		var enc4 = '';
-		var i = 0;
-
-		// remove all characters that are not A-Z, a-z, 0-9, +, /, or =
-		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
-
-		while (i < input.length) {
-			enc1 = keyStr.indexOf(input.charAt(i++));
-			enc2 = keyStr.indexOf(input.charAt(i++));
-			enc3 = keyStr.indexOf(input.charAt(i++));
-			enc4 = keyStr.indexOf(input.charAt(i++));
-
-			chr1 = (enc1 << 2) | (enc2 >> 4);
-			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-			chr3 = ((enc3 & 3) << 6) | enc4;
-
-			output = output + String.fromCharCode(chr1);
-
-			if (enc3 !== 64) {
-				output = output + String.fromCharCode(chr2);
-			}
-			if (enc4 !== 64) {
-				output = output + String.fromCharCode(chr3);
-			}
-
-			chr1 = chr2 = chr3 = '';
-			enc1 = enc2 = enc3 = enc4 = '';
-		}
-	};
-}).factory('StorageService', ["$window", function($window) {
-	return {
-
-		get: function(key) {
-			return JSON.parse($window.localStorage.getItem(key));
-		},
-
-		save: function(key, data) {
-			$window.localStorage.setItem(key, JSON.stringify(data));
-		},
-
-		remove: function(key) {
-			$window.localStorage.removeItem(key);
-		},
-
-		clearAll: function() {
-			$window.localStorage.clear();
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile')
-	.service('ParseLinks', function() {
-		this.parse = function(header) {
-			if (header.length === 0) {
-				throw new Error('input must not be of zero length');
-			}
-
-			// Split parts by comma
-			var parts = header.split(',');
-			var links = {};
-			// Parse each part into a named link
-			angular.forEach(parts, function(p) {
-				var section = p.split(';');
-				if (section.length !== 2) {
-					throw new Error('section could not be split on ";"');
-				}
-				var url = section[0].replace(/<(.*)>/, '$1').trim();
-				var queryString = {};
-				url.replace(
-					new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
-					function($0, $1, $2, $3) {
-						queryString[$1] = $3;
-					}
-				);
-				var page = queryString.page;
-				if (angular.isString(page)) {
-					page = parseInt(page);
-				}
-				var name = section[1].replace(/rel='(.*)'/, '$1').trim();
-				links[name] = page;
-			});
-
-			return links;
-		};
-	});
-
-'use strict';
-
-angular.module('adama-mobile').factory('authInterceptor', ["$rootScope", "$q", "$location", "localStorageService", function($rootScope, $q, $location, localStorageService) {
-	return {
-		// Add authorization token to headers
-		request: function(config) {
-			config.headers = config.headers || {};
-			var token = localStorageService.get('token');
-
-			if (token && token.expires && token.expires > new Date().getTime()) {
-				config.headers['x-auth-token'] = token.token;
-			}
-
-			return config;
-		}
-	};
-}]).factory('authExpiredInterceptor', ["$rootScope", "$q", "$injector", "localStorageService", function($rootScope, $q, $injector, localStorageService) {
-	return {
-		responseError: function(response) {
-			// token has expired
-			if (response.status === 401 && (response.data.error === 'invalid_token' || response.data.error === 'Unauthorized')) {
-				localStorageService.remove('token');
-				var Principal = $injector.get('Principal');
-				if (Principal.isAuthenticated()) {
-					var Auth = $injector.get('Auth');
-					Auth.authorize(true);
-				}
-			}
-			return $q.reject(response);
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').factory('errorHandlerInterceptor', ["$q", "$rootScope", "jHipsterConstant", function($q, $rootScope, jHipsterConstant) {
-	return {
-		'responseError': function(response) {
-			if (!(response.status === 401 && response.data.path.indexOf('/api/account') === 0)) {
-				$rootScope.$emit(jHipsterConstant.appModule + '.httpError', response);
-			}
-			return $q.reject(response);
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').factory('notificationInterceptor', ["$q", "AlertService", "jHipsterConstant", function($q, AlertService, jHipsterConstant) {
-	return {
-		response: function(response) {
-			var alertKey = response.headers('X-' + jHipsterConstant.appModule + '-alert');
-			if (angular.isString(alertKey)) {
-				AlertService.success(alertKey, {
-					param: response.headers('X-' + jHipsterConstant.appModule + '-params')
-				});
-			}
-			return response;
-		}
-	};
-}]);
-
 'use strict';
 
 angular.module('adama-mobile')
@@ -1100,6 +972,196 @@ angular.module('adama-mobile')
 			}
 		};
 	}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('authInterceptor', ["$rootScope", "$q", "$location", "localStorageService", function($rootScope, $q, $location, localStorageService) {
+	return {
+		// Add authorization token to headers
+		request: function(config) {
+			config.headers = config.headers || {};
+			var token = localStorageService.get('token');
+
+			if (token && token.expires && token.expires > new Date().getTime()) {
+				config.headers['x-auth-token'] = token.token;
+			}
+
+			return config;
+		}
+	};
+}]).factory('authExpiredInterceptor', ["$rootScope", "$q", "$injector", "localStorageService", function($rootScope, $q, $injector, localStorageService) {
+	return {
+		responseError: function(response) {
+			// token has expired
+			if (response.status === 401 && (response.data.error === 'invalid_token' || response.data.error === 'Unauthorized')) {
+				localStorageService.remove('token');
+				var Principal = $injector.get('Principal');
+				if (Principal.isAuthenticated()) {
+					var Auth = $injector.get('Auth');
+					Auth.authorize(true);
+				}
+			}
+			return $q.reject(response);
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('errorHandlerInterceptor', ["$q", "$rootScope", "jHipsterConstant", function($q, $rootScope, jHipsterConstant) {
+	return {
+		'responseError': function(response) {
+			if (!(response.status === 401 && response.data.path.indexOf('/api/account') === 0)) {
+				$rootScope.$emit(jHipsterConstant.appModule + '.httpError', response);
+			}
+			return $q.reject(response);
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('notificationInterceptor', ["$q", "AlertService", "jHipsterConstant", function($q, AlertService, jHipsterConstant) {
+	return {
+		response: function(response) {
+			var alertKey = response.headers('X-' + jHipsterConstant.appModule + '-alert');
+			if (angular.isString(alertKey)) {
+				AlertService.success(alertKey, {
+					param: response.headers('X-' + jHipsterConstant.appModule + '-params')
+				});
+			}
+			return response;
+		}
+	};
+}]);
+
+/*jshint bitwise: false*/
+'use strict';
+
+angular.module('adama-mobile').service('Base64', function() {
+	var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	this.encode = function(input) {
+		var output = '';
+		var chr1, chr2, enc1, enc2, enc3;
+		var chr3 = '';
+		var enc4 = '';
+		var i = 0;
+
+		while (i < input.length) {
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+
+			output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
+			chr1 = chr2 = chr3 = '';
+			enc1 = enc2 = enc3 = enc4 = '';
+		}
+
+		return output;
+	};
+
+	this.decode = function(input) {
+		var output = '';
+		var chr1, chr2, enc1, enc2, enc3;
+		var chr3 = '';
+		var enc4 = '';
+		var i = 0;
+
+		// remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+
+		while (i < input.length) {
+			enc1 = keyStr.indexOf(input.charAt(i++));
+			enc2 = keyStr.indexOf(input.charAt(i++));
+			enc3 = keyStr.indexOf(input.charAt(i++));
+			enc4 = keyStr.indexOf(input.charAt(i++));
+
+			chr1 = (enc1 << 2) | (enc2 >> 4);
+			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+			chr3 = ((enc3 & 3) << 6) | enc4;
+
+			output = output + String.fromCharCode(chr1);
+
+			if (enc3 !== 64) {
+				output = output + String.fromCharCode(chr2);
+			}
+			if (enc4 !== 64) {
+				output = output + String.fromCharCode(chr3);
+			}
+
+			chr1 = chr2 = chr3 = '';
+			enc1 = enc2 = enc3 = enc4 = '';
+		}
+	};
+}).factory('StorageService', ["$window", function($window) {
+	return {
+
+		get: function(key) {
+			return JSON.parse($window.localStorage.getItem(key));
+		},
+
+		save: function(key, data) {
+			$window.localStorage.setItem(key, JSON.stringify(data));
+		},
+
+		remove: function(key) {
+			$window.localStorage.removeItem(key);
+		},
+
+		clearAll: function() {
+			$window.localStorage.clear();
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile')
+	.service('ParseLinks', function() {
+		this.parse = function(header) {
+			if (header.length === 0) {
+				throw new Error('input must not be of zero length');
+			}
+
+			// Split parts by comma
+			var parts = header.split(',');
+			var links = {};
+			// Parse each part into a named link
+			angular.forEach(parts, function(p) {
+				var section = p.split(';');
+				if (section.length !== 2) {
+					throw new Error('section could not be split on ";"');
+				}
+				var url = section[0].replace(/<(.*)>/, '$1').trim();
+				var queryString = {};
+				url.replace(
+					new RegExp('([^?=&]+)(=([^&]*))?', 'g'),
+					function($0, $1, $2, $3) {
+						queryString[$1] = $3;
+					}
+				);
+				var page = queryString.page;
+				if (angular.isString(page)) {
+					page = parseInt(page);
+				}
+				var name = section[1].replace(/rel='(.*)'/, '$1').trim();
+				links[name] = page;
+			});
+
+			return links;
+		};
+	});
 
 'use strict';
 
