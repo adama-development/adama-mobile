@@ -7,11 +7,7 @@ angular.module('adama-mobile').controller('SigninCtrl', function($rootScope, $st
 			username: userName,
 			password: userPassword
 		}).then(function() {
-			if ($rootScope.previousStateName === 'auth.signin') {
-				$state.go('app.main');
-			} else {
-				$rootScope.back();
-			}
+			$state.go('app.main');
 		}).catch(function() {
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
