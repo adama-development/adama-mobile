@@ -20,7 +20,6 @@ var sassLint = require('gulp-sass-lint');
 require('gulp-release-tasks')(gulp);
 
 var config = {
-	applicationUrl : 'http://localhost:3000',
 	mainPath : './src/',
 	targetPath : './dist/'
 };
