@@ -6,21 +6,30 @@
 		<title></title>
 		<link href="dist/main.css" rel="stylesheet">
 	
+		<script>
+			var IONIC_IO_SETTINGS = {
+				app_id: 'demo-app-id',
+				api_key: 'demo-app-key'
+			};
+		</script>
+
 		<!-- ionic/angularjs js -->
-		<script src="lib/ionic/js/ionic.bundle.js"></script>
-		<script src="lib/ngCordova/dist/ng-cordova.js"></script>
-	
+		<script src="bower_components/ionic/js/ionic.bundle.js"></script>
+		<script src="bower_components/ionic-platform-web-client/dist/ionic.io.bundle.js"></script>
+		<script src="bower_components/ngCordova/dist/ng-cordova.js"></script>
+
 		<!-- vendors -->
-		<script src="lib/angular-cookies/angular-cookies.min.js"></script>
-		<script src="lib/angular-resource/angular-resource.min.js"></script>
-		<script src="lib/angular-local-storage/dist/angular-local-storage.js"></script>
-		<script src="lib/angular-translate/angular-translate.js"></script>
-		<script src="lib/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
-		<script src="lib/angular-translate-storage-local/angular-translate-storage-local.js"></script>
-		<script src="lib/angular-messages/angular-messages.js"></script>
+		<script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+		<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+		<script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+		<script src="bower_components/angular-translate/angular-translate.js"></script>
+		<script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
+		<script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.js"></script>
+		<script src="bower_components/angular-messages/angular-messages.js"></script>
 	
 		<!-- adama-mobile -->
 		<script src="adama-mobile/app.js"></script>
+		<script src="adama-mobile/app-config.js"></script>
 		<script src="adama-mobile/auth/app.js"></script>
 		<script src="adama-mobile/auth/accessDenied.controller.js"></script>
 		<script src="adama-mobile/auth/recoverPassword.controller.js"></script>
@@ -50,8 +59,8 @@
 		<script src="adama-mobile/services/page-title.service.js"></script>
 	
 		<!-- mock -->
-		<script src="lib/ngCordova/dist/ng-cordova-mocks.js"></script>
-		<script src="lib/angular-mocks/angular-mocks.js"></script>
+		<script src="bower_components/ngCordova/dist/ng-cordova-mocks.js"></script>
+		<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 		<script src="mocks/app.js"></script>
 		<script src="mocks/mock-settings.constant.js"></script>
 		<script src="mocks/auth.js"></script>

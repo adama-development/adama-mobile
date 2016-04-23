@@ -16,6 +16,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var templateCache = require('gulp-angular-templatecache');
 var sass = require('gulp-sass');
 var sassLint = require('gulp-sass-lint');
+var replace = require('gulp-replace');
 
 require('gulp-release-tasks')(gulp);
 
@@ -105,20 +106,31 @@ gulp.task('css', function() {
 	return cssPipe;
 });
 
-gulp.task('serve', [ 'js', 'css' ], function() {
+gulp.task('ionic.io', function() {
+	var start = '"IONIC_SETTINGS_STRING_START";var settings =';
+	var ioconfig = 'IONIC_IO_SETTINGS';
+	var end =  '; return { get: function(setting) { if (settings[setting]) { return settings[setting]; } return null; } };"IONIC_SETTINGS_STRING_END"';
+	var replaceBy = start + ioconfig + end;
+	var pathToIonicIo = 'bower_components/ionic-platform-web-client/dist/';
+	var cssPipe = gulp.src([ pathToIonicIo + '*.js' ]) //
+	.pipe(replace(/"IONIC_SETTINGS_STRING_START.*IONIC_SETTINGS_STRING_END"/, replaceBy))
+	.pipe(gulp.dest('.tmp/' + pathToIonicIo));
+});
+
+gulp.task('serve', [ 'ionic.io', 'js', 'css' ], function() {
 	var demoFolder = 'demo-simple';
 	if (gutil.env.demo) {
 		demoFolder = 'demo-' + gutil.env.demo;
 	}
 	browserSync.init({
 		server : {
-			baseDir : [ demoFolder ],
+			baseDir : [ demoFolder, '.tmp' ],
 			routes : {
 				'/adama-mobile' : config.mainPath + 'js/',
 				'/dist' : 'dist',
 				'/mocks' : 'mocks',
 				'/node_modules' : 'node_modules',
-				'/lib' : 'bower_components'
+				'/bower_components' : 'bower_components'
 			}
 		},
 		open : false

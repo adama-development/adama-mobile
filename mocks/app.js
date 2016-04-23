@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('adamaDemoApp', [ //
-'adama-mobile',//
-'ngCordova', //
+'adama-mobile',
+'ngCordovaMocks', //
 'ngMockE2E' //
 ]);
