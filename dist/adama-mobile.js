@@ -1,15 +1,22 @@
-/* globals StatusBar:false, cordova: false */
-
 'use strict';
 
 angular.module('adama-mobile', [ //
 	'ionic', //
+	'ionic.service.core', //
+	'ionic.service.auth', //
+	'ionic.service.deploy', //
+	'ionic.service.push', //
 	'pascalprecht.translate', //
 	'ngCookies', //
 	'ngResource', //
 	'LocalStorageModule', //
+	'ngCordova', //
 	'ngMessages' //
 ]);
+
+/* globals StatusBar:false, cordova: false */
+
+'use strict';
 
 angular.module('adama-mobile').run(["$ionicPlatform", function($ionicPlatform) {
 	$ionicPlatform.ready(function() {
@@ -227,11 +234,7 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 			username: userName,
 			password: userPassword
 		}).then(function() {
-			if ($rootScope.previousStateName === 'auth.signin') {
-				$state.go('app.main');
-			} else {
-				$rootScope.back();
-			}
+			$state.go('app.main');
 		}).catch(function() {
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
@@ -309,27 +312,6 @@ angular.module('adama-mobile').run(["$rootScope", "$state", "Principal", "Auth",
 			Auth.authorize();
 		}
 	});
-
-	$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
-		// Remember previous state unless we've been redirected to login or
-		// we've just reset the state memory after logout. If we're redirected
-		// to login, our previousState is already set in the
-		// authExpiredInterceptor. If we're going to login directly, we don't
-		// want to be sent to some previous state anyway
-		if (toState.name !== 'auth.signin' && $rootScope.previousStateName) {
-			$rootScope.previousStateName = fromState.name;
-			$rootScope.previousStateParams = fromParams;
-		}
-	});
-
-	$rootScope.back = function() {
-		// If previous state is 'activate' or do not exist go to 'home'
-		if ($state.get($rootScope.previousStateName) === null) {
-			$state.go('app.main');
-		} else {
-			$state.go($rootScope.previousStateName, $rootScope.previousStateParams);
-		}
-	};
 }]);
 
 angular.module('adama-mobile').config(["$httpProvider", function($httpProvider) {
@@ -738,9 +720,6 @@ angular.module('adama-mobile')
 			logout: function() {
 				AuthServerProvider.logout();
 				Principal.authenticate(null);
-				// Reset state memory
-				$rootScope.previousStateName = undefined;
-				$rootScope.previousStateNameParams = undefined;
 			},
 
 			authorize: function(force) {
@@ -763,11 +742,7 @@ angular.module('adama-mobile')
 								// user is signed in but not authorized for desired state
 								$state.go('auth.accessDenied');
 							} else {
-								// user is not authenticated. stow the state they wanted before you
-								// send them to the signin state, so you can return them when you're done
-								$rootScope.previousStateName = $rootScope.toState;
-								$rootScope.previousStateNameParams = $rootScope.toStateParams;
-								// now, send them to the signin state so they can log in
+								// send them to the signin state so they can log in
 								$state.go('auth.signin');
 							}
 						}

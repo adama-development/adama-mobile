@@ -2,7 +2,7 @@
 
 angular.module('adama-mobile', [ //
 	'ionic', //
-	'ionic.service.core',//
+	'ionic.service.core', //
 	'ionic.service.auth', //
 	'ionic.service.deploy', //
 	'ionic.service.push', //
