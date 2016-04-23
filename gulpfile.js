@@ -114,7 +114,7 @@ gulp.task('ionic.io', function() {
 	var pathToIonicIo = 'bower_components/ionic-platform-web-client/dist/';
 	var cssPipe = gulp.src([ pathToIonicIo + '*.js' ]) //
 	.pipe(replace(/"IONIC_SETTINGS_STRING_START.*IONIC_SETTINGS_STRING_END"/, replaceBy))
-	.pipe(gulp.dest('.tmp/' + pathToIonicIo));
+	.pipe(gulp.dest('.tmp/'));
 });
 
 gulp.task('serve', [ 'ionic.io', 'js', 'css' ], function() {
