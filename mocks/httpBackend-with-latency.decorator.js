@@ -16,4 +16,4 @@ angular.module('adama-mobile').config(function($provide, mockSettings) {
 		}
 		return proxy;
 	});
-})
+});
