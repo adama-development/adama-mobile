@@ -1,5 +1,6 @@
 'use strict';
 
+// TODO still needed ?
 angular.module('adama-mobile')
 	.provider('AlertService', function() {
 		var toast = false;

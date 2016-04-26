@@ -1,14 +1,12 @@
 'use strict';
 
-angular.module('adama-mobile').controller('SigninCtrl', function($rootScope, $state, Auth, $filter, $ionicPopup) {
+angular.module('adama-mobile').controller('SigninCtrl', function($rootScope, $state, authService, $filter, $ionicPopup) {
 	var ctrl = this;
 	ctrl.signin = function(userName, userPassword) {
-		Auth.login({
-			username: userName,
-			password: userPassword
-		}).then(function() {
+		authService.login(userName, userPassword).then(function() {
 			$state.go('app.main');
-		}).catch(function() {
+		}).catch(function(rejection) {
+			console.error('error while signing in', rejection);
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
 				title: translateFn('SIGNIN_ERROR_TITLE'),

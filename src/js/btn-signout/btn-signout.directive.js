@@ -2,10 +2,10 @@
 
 angular.module('adama-mobile').component('btnSignout', {
 	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: function(Auth, $state) {
+	controller: function(authService, $state) {
 		var ctrl = this;
 		ctrl.signout = function() {
-			Auth.logout();
+			authService.logout();
 			$state.go('auth.signin');
 		};
 	}

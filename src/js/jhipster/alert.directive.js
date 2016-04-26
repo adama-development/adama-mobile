@@ -1,5 +1,6 @@
 'use strict';
 
+// TODO still needed ?
 angular.module('adama-mobile')
 	.directive('jhAlert', function(AlertService) {
 		return {

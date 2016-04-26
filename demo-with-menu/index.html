@@ -26,45 +26,48 @@
 		<script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
 		<script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.js"></script>
 		<script src="bower_components/angular-messages/angular-messages.js"></script>
+		<script src="bower_components/angular-jwt/dist/angular-jwt.min.js"></script>
 	
 		<!-- adama-mobile -->
 		<script src="adama-mobile/app.js"></script>
 		<script src="adama-mobile/app-config.js"></script>
-		<script src="adama-mobile/auth/app.js"></script>
 		<script src="adama-mobile/auth/accessDenied.controller.js"></script>
+		<script src="adama-mobile/auth/app.js"></script>
 		<script src="adama-mobile/auth/recoverPassword.controller.js"></script>
 		<script src="adama-mobile/auth/signin.controller.js"></script>
 		<script src="adama-mobile/btn-signout/app.js"></script>
 		<script src="adama-mobile/btn-signout/btn-signout.directive.js"></script>
+		<script src="adama-mobile/datasources/binary-file-url.datasource.js"></script>
 		<script src="adama-mobile/datasources/language.datasource.js"></script>
 		<script src="adama-mobile/datasources/principal-identity.datasource.js"></script>
-		<script src="adama-mobile/jhipster/app.js"></script>
-		<script src="adama-mobile/jhipster/jhipster-constant.service.js"></script>
-		<script src="adama-mobile/jhipster/jhipster-resource-config.service.js"></script>
-		<script src="adama-mobile/jhipster/components/alert/alert.directive.js"></script>
-		<script src="adama-mobile/jhipster/components/alert/alert.service.js"></script>
-		<script src="adama-mobile/jhipster/components/auth/provider/auth.xauth.service.js"></script>
-		<script src="adama-mobile/jhipster/components/auth/services/account.service.js"></script>
-		<script src="adama-mobile/jhipster/components/auth/services/password.service.js"></script>
-		<script src="adama-mobile/jhipster/components/auth/auth.service.js"></script>
-		<script src="adama-mobile/jhipster/components/auth/authority.directive.js"></script>
-		<script src="adama-mobile/jhipster/components/auth/principal.service.js"></script>
-		<script src="adama-mobile/jhipster/components/interceptor/auth.interceptor.js"></script>
-		<script src="adama-mobile/jhipster/components/interceptor/errorhandler.interceptor.js"></script>
-		<script src="adama-mobile/jhipster/components/interceptor/notification.interceptor.js"></script>
-		<script src="adama-mobile/jhipster/components/util/base64.service.js"></script>
-		<script src="adama-mobile/jhipster/components/util/parse-links.service.js"></script>
+		<script src="adama-mobile/interceptors/auth-expired.interceptor.js"></script>
+		<script src="adama-mobile/interceptors/auth.interceptor.js"></script>
+		<script src="adama-mobile/jhipster/alert.directive.js"></script>
+		<script src="adama-mobile/jhipster/alert.service.js"></script>
 		<script src="adama-mobile/resources/user.resource.js"></script>
+		<script src="adama-mobile/services/adama-token.service.js"></script>
+		<script src="adama-mobile/services/auth.service.js"></script>
+		<script src="adama-mobile/services/binary-file.service.js"></script>
+		<script src="adama-mobile/services/jhipster-constant.constant.js"></script>
+		<script src="adama-mobile/services/jhipster-resource-config.service.js"></script>
 		<script src="adama-mobile/services/language.provider.js"></script>
 		<script src="adama-mobile/services/page-title.service.js"></script>
+		<script src="adama-mobile/services/parse-links.service.js"></script>
+		<script src="adama-mobile/services/principal.service.js"></script>
 	
 		<!-- mock -->
 		<script src="bower_components/ngCordova/dist/ng-cordova-mocks.js"></script>
 		<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 		<script src="mocks/app.js"></script>
+		<script src="mocks/$cordovaBadge.decorator.js"></script>
+		<script src="mocks/$ionicAuth.decorator.js"></script>
+		<script src="mocks/$ionicPush.decorator.js"></script>
+		<script src="mocks/$ionicUser.decorator.js"></script>
 		<script src="mocks/mock-settings.constant.js"></script>
 		<script src="mocks/auth.js"></script>
 		<script src="mocks/basic.js"></script>
+		<script src="mocks/cordovaInAppBrowser.js"></script>
+		<script src="mocks/external-login.js"></script>
 		<script src="mocks/httpBackend-with-latency.decorator.js"></script>
 		<script src="mocks/users.js"></script>
 		<script>

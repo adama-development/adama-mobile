@@ -1,8 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').run(function($httpBackend, $http, jHipsterConstant, mockSettings) {
-	var entities = mockSettings.users;
-
+angular.module('adama-mobile').run(function($httpBackend, $http) {
 	$httpBackend.when('GET', '/api/binaryFiles').respond(function(method, url, data) {
 		data = JSON.parse(data);
 		console.warn('GET /api/binaryFiles', method, url, data);

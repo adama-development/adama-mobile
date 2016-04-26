@@ -11,5 +11,6 @@ angular.module('adama-mobile', [ //
 	'ngResource', //
 	'LocalStorageModule', //
 	'ngCordova', //
+	'angular-jwt', //
 	'ngMessages' //
 ]);

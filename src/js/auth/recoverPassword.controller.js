@@ -1,13 +1,13 @@
 'use strict';
 
-angular.module('adama-mobile').controller('RecoverPasswordCtrl', function($filter, $ionicPopup, Auth) {
+angular.module('adama-mobile').controller('RecoverPasswordCtrl', function($filter, $ionicPopup, principalService) {
 	var ctrl = this;
 	ctrl.recover = function(userEmail) {
 		ctrl.recoverSuccess = false;
 		ctrl.recoverError = false;
 		ctrl.errorEmailNotExists = false;
 		ctrl.loading = true;
-		Auth.resetPasswordInit(userEmail).then(function() {
+		principalService.resetPasswordInit(userEmail).then(function() {
 			ctrl.recoverSuccess = true;
 		}).catch(function(response) {
 			var messageKey = 'RECOVER_ERROR_GENERIC';
