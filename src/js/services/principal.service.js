@@ -16,7 +16,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		if (ionicUser.isAuthenticated()) {
 			principalPromise = $http({
 				method : 'GET',
-				url : adamaConstant.apiBase + 'users/byLogin/' + ionicUser.external_id
+				url : adamaConstant.apiBase + 'api/users/byLogin/' + ionicUser.external_id
 			}).then(function(response) {
 				var principal = response.data;
 				isAuthenticated = true;

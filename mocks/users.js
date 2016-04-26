@@ -39,6 +39,11 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return entity;
 	};
 
+	$httpBackend.when('GET', /^\/api\/users\/byLogin\/.*/).respond(function(method, url) {
+		console.warn('GET /api/users/byLogin/xx', url);
+		return [ 200, mockSettings.connectedUser ];
+	});
+
 	$httpBackend.when('GET', /^\/api\/users\/.*/).respond(function(method, url) {
 		console.warn('GET /api/users/xx', url);
 		var id = url.substring('/api/users/'.length);
@@ -97,10 +102,5 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 	$httpBackend.when('POST', '/api/users?method=import-xls').respond(function(method, url, data) {
 		console.warn('POST /api/users (import-xls)', data);
 		return [ 200 ];
-	});
-
-	$httpBackend.when('GET', '/api/users/byLogin').respond(function() {
-		console.warn('GET /api/users/byLogin');
-		return [ 200, mockSettings.connectedUser ];
 	});
 });
