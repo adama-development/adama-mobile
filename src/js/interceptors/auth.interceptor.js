@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').factory('authInterceptor', function($injector, jHipsterConstant) {
+angular.module('adama-mobile').factory('authInterceptor', function($injector, adamaConstant) {
 	var getAdamaTokenService = (function() {
 		var service;
 		return function() {
@@ -12,7 +12,7 @@ angular.module('adama-mobile').factory('authInterceptor', function($injector, jH
 		// Add authorization token to headers
 		request: function(config) {
 			config.headers = config.headers || {};
-			if (!config.headers['x-auth-token'] && config.url.indexOf(jHipsterConstant.apiBase) === 0){
+			if (!config.headers['x-auth-token'] && config.url.indexOf(adamaConstant.apiBase) === 0){
 				return getAdamaTokenService().getToken().then(function(token){
 					if (token) {
 						config.headers['x-auth-token'] = token;

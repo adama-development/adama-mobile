@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').factory('adamaTokenService', function($http, $q, $state, $ionicUser, jwtHelper, jHipsterConstant) {
+angular.module('adama-mobile').factory('adamaTokenService', function($http, $q, $state, $ionicUser, jwtHelper, adamaConstant) {
 	var api = {};
 
 	api.getToken = function() {
@@ -22,7 +22,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($http, $q, 
 		var refreshToken = user.get('refreshToken');
 		return $http({
 			method : 'GET',
-			url : jHipsterConstant.apiBase + 'api/refreshToken',
+			url : adamaConstant.apiBase + 'api/refreshToken',
 			headers : {
 				'x-auth-token' : token,
 				'x-auth-refresh-token' : refreshToken

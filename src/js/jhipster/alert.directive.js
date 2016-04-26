@@ -32,8 +32,8 @@ angular.module('adama-mobile')
 				'{{ alert.msg }}' +
 				'</div>' +
 				'</div>',
-			controller: ['$scope', 'jHipsterConstant',
-				function($scope, jHipsterConstant) {
+			controller: ['$scope', 'adamaConstant',
+				function($scope, adamaConstant) {
 
 					$scope.alerts = [];
 
@@ -53,7 +53,7 @@ angular.module('adama-mobile')
 						);
 					};
 
-					var cleanHttpErrorListener = $rootScope.$on(jHipsterConstant.appModule + '.httpError', function(event, httpResponse) {
+					var cleanHttpErrorListener = $rootScope.$on(adamaConstant.appModule + '.httpError', function(event, httpResponse) {
 						var i;
 						event.stopPropagation();
 						switch (httpResponse.status) {
@@ -63,8 +63,8 @@ angular.module('adama-mobile')
 								break;
 
 							case 400:
-								var errorHeader = httpResponse.headers('X-' + jHipsterConstant.appModule + '-error');
-								var entityKey = httpResponse.headers('X-' + jHipsterConstant.appModule + '-params');
+								var errorHeader = httpResponse.headers('X-' + adamaConstant.appModule + '-error');
+								var entityKey = httpResponse.headers('X-' + adamaConstant.appModule + '-params');
 								if (errorHeader) {
 									var entityName = $translate.instant('global.menu.entities.' + entityKey);
 									addErrorAlert(errorHeader, errorHeader, {
@@ -77,7 +77,7 @@ angular.module('adama-mobile')
 										// to 'something[].other[].id' so
 										// translations can be written to it
 										var convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
-										var fieldName = $translate.instant(jHipsterConstant.appModule + '.' + fieldError.objectName + '.' + convertedField);
+										var fieldName = $translate.instant(adamaConstant.appModule + '.' + fieldError.objectName + '.' + convertedField);
 										addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
 											fieldName: fieldName
 										});

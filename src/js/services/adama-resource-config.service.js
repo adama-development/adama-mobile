@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').factory('jHipsterResourceConfig', function(ParseLinks) {
+angular.module('adama-mobile').factory('adamaResourceConfig', function(ParseLinks) {
 	return {
 		'query': {
 			method: 'GET',

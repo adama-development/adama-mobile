@@ -38,12 +38,12 @@ angular.module('adama-mobile').config(function($translateProvider) {
 	$translateProvider.determinePreferredLanguage().fallbackLanguage('en');
 });
 
-angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant) {
+angular.module('adama-mobile').config(function($stateProvider, adamaConstant) {
 	$stateProvider.state('app', {
 		abstract : true,
 		url : '/app',
 		templateUrl : function() {
-			return jHipsterConstant.adamaMobileToolkitTemplateUrl.app;
+			return adamaConstant.adamaMobileToolkitTemplateUrl.app;
 		}
 	});
 });

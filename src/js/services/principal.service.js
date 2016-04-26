@@ -1,20 +1,22 @@
+/*jshint camelcase: false*/
+/*jscs:disable requireCamelCaseOrUpperCaseIdentifiers*/
 'use strict';
 
-angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, jHipsterConstant) {
+angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $ionicUser, adamaConstant) {
 	var api = {};
 	var principalPromise = $q.reject('not init');
 	var isAuthenticated = false;
-	var accountResource = $resource(jHipsterConstant.apiBase + 'api/account', {}, {});
-	var passwordResource = $resource(jHipsterConstant.apiBase + 'api/account/change_password', {}, {});
-	var passwordResetInitResource = $resource(jHipsterConstant.apiBase + 'api/account/reset_password/init', {}, {});
+	var accountResource = $resource(adamaConstant.apiBase + 'api/account', {}, {});
+	var passwordResource = $resource(adamaConstant.apiBase + 'api/account/change_password', {}, {});
+	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'api/account/reset_password/init', {}, {});
 
 	api.resetPrincipal = function() {
 		isAuthenticated = false;
 		var ionicUser = $ionicUser.current();
 		if (ionicUser.isAuthenticated()) {
-			return principalPromise = $http({
+			principalPromise = $http({
 				method : 'GET',
-				url : jHipsterConstant.apiBase + 'users/byLogin/' + ionicUser['external_id']
+				url : adamaConstant.apiBase + 'users/byLogin/' + ionicUser.external_id
 			}).then(function(response) {
 				var principal = response.data;
 				isAuthenticated = true;
@@ -23,8 +25,10 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				});
 				return principal;
 			});
+		} else {
+			principalPromise = $q.reject('not logged');
 		}
-		principalPromise = $q.reject('not logged');
+		return principalPromise;
 	};
 
 	api.getPrincipal = function() {

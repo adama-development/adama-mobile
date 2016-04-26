@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').factory('authService', function($http, $ionicAuth, jHipsterConstant, principalService) {
+angular.module('adama-mobile').factory('authService', function($http, $ionicAuth, adamaConstant, principalService) {
 	var api = {};
 
 	api.login = function(username, password) {
@@ -16,7 +16,7 @@ angular.module('adama-mobile').factory('authService', function($http, $ionicAuth
 			console.log('login is ok, ask custom auth server to refresh the user data');
 			return $http({
 				method : 'POST',
-				url : jHipsterConstant.apiBase + 'externalLogin/refreshUserExternal',
+				url : adamaConstant.apiBase + 'externalLogin/refreshUserExternal',
 				data : {
 					externalId : username
 				}

@@ -9,7 +9,7 @@
 	"disallowMultipleVarDecl": "exceptUndefined",
 	"disallowNewlineBeforeBlockStatements": true,
 	"disallowTrailingComma": true,
-	"maximumLineLength": 209,
+	"maximumLineLength": 200,
 	"requireBlocksOnNewline": true,
 	"requireCamelCaseOrUpperCaseIdentifiers": true,
 	"requireCommaBeforeLineBreak": true,

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant) {
+angular.module('adama-mobile').config(function($stateProvider, adamaConstant) {
 	$stateProvider.state('auth', {
 		abstract: true,
 		url: '/auth',
@@ -12,7 +12,7 @@ angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant)
 	$stateProvider.state('auth.signin', {
 		url: '/',
 		templateUrl: function() {
-			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authSignin;
+			return adamaConstant.adamaMobileToolkitTemplateUrl.authSignin;
 		},
 		controller: 'SigninCtrl',
 		controllerAs: 'ctrl',
@@ -25,7 +25,7 @@ angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant)
 	$stateProvider.state('auth.recoverPassword', {
 		url: '/recoverPassword',
 		templateUrl: function() {
-			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authRecover;
+			return adamaConstant.adamaMobileToolkitTemplateUrl.authRecover;
 		},
 		controller: 'RecoverPasswordCtrl',
 		controllerAs: 'ctrl',
@@ -38,7 +38,7 @@ angular.module('adama-mobile').config(function($stateProvider, jHipsterConstant)
 	$stateProvider.state('auth.accessDenied', {
 		url: '/accessDenied',
 		templateUrl: function() {
-			return jHipsterConstant.adamaMobileToolkitTemplateUrl.authAccessDenied;
+			return adamaConstant.adamaMobileToolkitTemplateUrl.authAccessDenied;
 		},
 		controller: 'AccessDeniedCtrl',
 		controllerAs: 'ctrl',

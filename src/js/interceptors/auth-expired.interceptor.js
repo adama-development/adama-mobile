@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').factory('authExpiredInterceptor', function($injector, $q, jHipsterConstant) {
+angular.module('adama-mobile').factory('authExpiredInterceptor', function($injector, $q, adamaConstant) {
 	var getHttpService = (function() {
 		var service;
 		return function() {
@@ -18,7 +18,7 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', function($injec
 	return {
 		responseError : function(response) {
 			var config = response.config;
-			if (response.status === 401 && config.url.indexOf(jHipsterConstant.apiBase) === 0) {
+			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
 				return getAdamaTokenService().refreshAndGetToken().then(function(){
 					return getHttpService()(config);
 				});

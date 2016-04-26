@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').constant('jHipsterConstant', {
+angular.module('adama-mobile').constant('adamaConstant', {
 	apiBase: 'http://localhost:13337/',
 	appModule: 'mySuperApp',
 	adamaMobileToolkitTemplateUrl: {

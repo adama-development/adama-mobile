@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('adama-mobile').factory('User', function($resource, jHipsterConstant, jHipsterResourceConfig) {
-	var config = angular.extend({}, jHipsterResourceConfig, {
+angular.module('adama-mobile').factory('User', function($resource, adamaConstant, adamaResourceConfig) {
+	var config = angular.extend({}, adamaResourceConfig, {
 		'delete': {
 			method: 'DELETE',
 			params: {
@@ -9,5 +9,5 @@ angular.module('adama-mobile').factory('User', function($resource, jHipsterConst
 			}
 		}
 	});
-	return $resource(jHipsterConstant.apiBase + 'api/users/:login', {}, config);
+	return $resource(adamaConstant.apiBase + 'api/users/:login', {}, config);
 });
