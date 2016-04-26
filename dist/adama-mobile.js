@@ -259,22 +259,44 @@ angular.module('adama-mobile').config(["$translateProvider", function($translate
 
 'use strict';
 
-angular.module('adama-mobile').directive('btnSignout', function() {
-	return {
-		templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-		restrict: 'E',
-		scope: {},
-		bindToController: {},
-		controller: ["Auth", "$state", function(Auth, $state) {
-			var ctrl = this;
-			ctrl.signout = function() {
-				Auth.logout();
-				$state.go('auth.signin');
-			};
-		}],
-		controllerAs: 'ctrl'
-	};
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["Auth", "$state", function(Auth, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			Auth.logout();
+			$state.go('auth.signin');
+		};
+	}]
 });
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			var updateOutput = function(binaryFileList) {
+				if (attrs.output) {
+					binaryFileList = angular.copy(binaryFileList);
+				}
+				if (!angular.isArray(binaryFileList)) {
+					binaryFileList = [binaryFileList];
+				}
+				binaryFileService.initUrlForBinaryFiles(binaryFileList);
+				if (attrs.output) {
+					$parse(attrs.output).assign(scope, binaryFileList);
+				}
+			};
+			scope.$watch(attrs.input, function() {
+				var binaryFileList = $parse(attrs.input)(scope);
+				if (binaryFileList) {
+					updateOutput(binaryFileList);
+				}
+			});
+		}
+	};
+}]);
 
 'use strict';
 
@@ -392,6 +414,39 @@ angular.module('adama-mobile').factory('User', ["$resource", "jHipsterConstant",
 
 'use strict';
 
+angular.module('adama-mobile').factory('binaryFileService', ["$http", "$q", "jHipsterConstant", function($http, $q, jHipsterConstant) {
+	var api = {};
+
+	api.initUrlForBinaryFiles = function(binaryFileList) {
+		var workingList = [];
+		var idList = [];
+		angular.forEach(binaryFileList, function(binaryFile) {
+			if (binaryFile && binaryFile.id && !binaryFile.url) {
+				workingList.push(binaryFile);
+				idList.push(binaryFile.id);
+			}
+		});
+		if (idList.length) {
+			return $http({
+				method: 'GET',
+				url: jHipsterConstant.apiBase + 'api/binaryFiles',
+				data: {
+					ids: idList
+				}
+			}).then(function(response) {
+				angular.forEach(workingList, function(binaryFile) {
+					binaryFile.url = response.data[binaryFile.id];
+				});
+			});
+		}
+		return $q.when();
+	};
+
+	return api;
+}]);
+
+'use strict';
+
 angular.module('adama-mobile').provider('language', function() {
 	var languages = ['en', 'fr'];
 	var selectorData = [{
@@ -448,247 +503,6 @@ angular.module('adama-mobile').factory('pageTitle', ["$rootScope", "$filter", fu
 
 	return api;
 }]);
-
-'use strict';
-
-angular.module('adama-mobile')
-	.directive('jhAlert', ["AlertService", function(AlertService) {
-		return {
-			restrict: 'E',
-			template: '<div class="content-wrapper" ng-cloak ng-if="alerts && alerts.length">' +
-				'<div class="box-body">' +
-				'<div ng-repeat="alert in alerts" class="alert alert-dismissible" ng-class="\'alert-\' + alert.type">' +
-				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
-				'{{ alert.msg }}' +
-				'</div>' +
-				'</div>' +
-				'</div>',
-			controller: ['$scope',
-				function($scope) {
-					$scope.alerts = AlertService.get();
-					$scope.$on('$destroy', function() {
-						$scope.alerts = [];
-					});
-				}
-			]
-		};
-	}])
-	.directive('jhAlertError', ["AlertService", "$rootScope", "$translate", function(AlertService, $rootScope, $translate) {
-		return {
-			restrict: 'E',
-			template: '<div class="alerts" ng-if="alerts && alerts.length">' +
-				'<div ng-repeat="alert in alerts" class="alert alert-dismissible" ng-class="\'alert-\' + alert.type">' +
-				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
-				'{{ alert.msg }}' +
-				'</div>' +
-				'</div>',
-			controller: ['$scope', 'jHipsterConstant',
-				function($scope, jHipsterConstant) {
-
-					$scope.alerts = [];
-
-					var addErrorAlert = function(message, key, data) {
-						key = key && key !== null ? key : message;
-						$scope.alerts.push(
-							AlertService.add({
-									type: 'danger',
-									msg: key,
-									params: data,
-									timeout: 5000,
-									toast: AlertService.isToast(),
-									scoped: true
-								},
-								$scope.alerts
-							)
-						);
-					};
-
-					var cleanHttpErrorListener = $rootScope.$on(jHipsterConstant.appModule + '.httpError', function(event, httpResponse) {
-						var i;
-						event.stopPropagation();
-						switch (httpResponse.status) {
-							// connection refused, server not reachable
-							case 0:
-								addErrorAlert('Server not reachable', 'error.server.not.reachable');
-								break;
-
-							case 400:
-								var errorHeader = httpResponse.headers('X-' + jHipsterConstant.appModule + '-error');
-								var entityKey = httpResponse.headers('X-' + jHipsterConstant.appModule + '-params');
-								if (errorHeader) {
-									var entityName = $translate.instant('global.menu.entities.' + entityKey);
-									addErrorAlert(errorHeader, errorHeader, {
-										entityName: entityName
-									});
-								} else if (httpResponse.data && httpResponse.data.fieldErrors) {
-									for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
-										var fieldError = httpResponse.data.fieldErrors[i];
-										// convert 'something[14].other[4].id'
-										// to 'something[].other[].id' so
-										// translations can be written to it
-										var convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
-										var fieldName = $translate.instant(jHipsterConstant.appModule + '.' + fieldError.objectName + '.' + convertedField);
-										addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
-											fieldName: fieldName
-										});
-									}
-								} else if (httpResponse.data && httpResponse.data.message) {
-									addErrorAlert(httpResponse.data.message, httpResponse.data.message, httpResponse.data);
-								} else {
-									addErrorAlert(httpResponse.data);
-								}
-								break;
-
-							default:
-								if (httpResponse.data && httpResponse.data.message) {
-									addErrorAlert(httpResponse.data.message);
-								} else {
-									addErrorAlert(JSON.stringify(httpResponse));
-								}
-						}
-					});
-
-					$scope.$on('$destroy', function() {
-						if (cleanHttpErrorListener !== undefined && cleanHttpErrorListener !== null) {
-							cleanHttpErrorListener();
-							$scope.alerts = [];
-						}
-					});
-				}
-			]
-		};
-	}]);
-
-'use strict';
-
-angular.module('adama-mobile')
-	.provider('AlertService', function() {
-		var toast = false;
-
-		this.$get = ['$timeout', '$sce', '$translate', function($timeout, $sce, $translate) {
-
-			var alertId = 0; // unique id for each alert. Starts from 0.
-			var alerts = [];
-			var timeout = 5000; // default timeout
-
-			var isToast = function() {
-				return toast;
-			};
-
-			var clear = function() {
-				alerts = [];
-			};
-
-			var get = function() {
-				return alerts;
-			};
-
-			var closeAlertByIndex = function(index, thisAlerts) {
-				return thisAlerts.splice(index, 1);
-			};
-
-			var closeAlert = function(id, extAlerts) {
-				var thisAlerts = extAlerts ? extAlerts : alerts;
-				return closeAlertByIndex(thisAlerts.map(function(e) {
-					return e.id;
-				}).indexOf(id), thisAlerts);
-			};
-
-			var factory = function(alertOptions) {
-				var alert = {
-					type: alertOptions.type,
-					msg: $sce.trustAsHtml(alertOptions.msg),
-					id: alertOptions.alertId,
-					timeout: alertOptions.timeout,
-					toast: alertOptions.toast,
-					position: alertOptions.position ? alertOptions.position : 'top right',
-					scoped: alertOptions.scoped,
-					close: function(alerts) {
-						return closeAlert(this.id, alerts);
-					}
-				};
-				if (!alert.scoped) {
-					alerts.push(alert);
-				}
-				return alert;
-			};
-
-			var addAlert = function(alertOptions, extAlerts) {
-				alertOptions.alertId = alertId++;
-				alertOptions.msg = $translate.instant(alertOptions.msg, alertOptions.params);
-				var alert = factory(alertOptions);
-				if (alertOptions.timeout && alertOptions.timeout > 0) {
-					$timeout(function() {
-						closeAlert(alertOptions.alertId, extAlerts);
-					}, alertOptions.timeout);
-				}
-				return alert;
-			};
-
-			var success = function(msg, params, position) {
-				return addAlert({
-					type: 'success',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
-			};
-
-			var error = function(msg, params, position) {
-				return addAlert({
-					type: 'danger',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
-			};
-
-			var warning = function(msg, params, position) {
-				return addAlert({
-					type: 'warning',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
-			};
-
-			var info = function(msg, params, position) {
-				return addAlert({
-					type: 'info',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
-			};
-
-			return {
-				factory: factory,
-				isToast: isToast,
-				add: addAlert,
-				closeAlert: closeAlert,
-				closeAlertByIndex: closeAlertByIndex,
-				clear: clear,
-				get: get,
-				success: success,
-				error: error,
-				info: info,
-				warning: warning
-			};
-		}];
-
-		this.showAsToast = function(isToast) {
-			toast = isToast;
-		};
-
-	});
 
 'use strict';
 
@@ -948,68 +762,6 @@ angular.module('adama-mobile')
 		};
 	}]);
 
-'use strict';
-
-angular.module('adama-mobile').factory('authInterceptor', ["$rootScope", "$q", "$location", "localStorageService", function($rootScope, $q, $location, localStorageService) {
-	return {
-		// Add authorization token to headers
-		request: function(config) {
-			config.headers = config.headers || {};
-			var token = localStorageService.get('token');
-
-			if (token && token.expires && token.expires > new Date().getTime()) {
-				config.headers['x-auth-token'] = token.token;
-			}
-
-			return config;
-		}
-	};
-}]).factory('authExpiredInterceptor', ["$rootScope", "$q", "$injector", "localStorageService", function($rootScope, $q, $injector, localStorageService) {
-	return {
-		responseError: function(response) {
-			// token has expired
-			if (response.status === 401 && (response.data.error === 'invalid_token' || response.data.error === 'Unauthorized')) {
-				localStorageService.remove('token');
-				var Principal = $injector.get('Principal');
-				if (Principal.isAuthenticated()) {
-					var Auth = $injector.get('Auth');
-					Auth.authorize(true);
-				}
-			}
-			return $q.reject(response);
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').factory('errorHandlerInterceptor', ["$q", "$rootScope", "jHipsterConstant", function($q, $rootScope, jHipsterConstant) {
-	return {
-		'responseError': function(response) {
-			if (!(response.status === 401 && response.data.path.indexOf('/api/account') === 0)) {
-				$rootScope.$emit(jHipsterConstant.appModule + '.httpError', response);
-			}
-			return $q.reject(response);
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').factory('notificationInterceptor', ["$q", "AlertService", "jHipsterConstant", function($q, AlertService, jHipsterConstant) {
-	return {
-		response: function(response) {
-			var alertKey = response.headers('X-' + jHipsterConstant.appModule + '-alert');
-			if (angular.isString(alertKey)) {
-				AlertService.success(alertKey, {
-					param: response.headers('X-' + jHipsterConstant.appModule + '-params')
-				});
-			}
-			return response;
-		}
-	};
-}]);
-
 /*jshint bitwise: false*/
 'use strict';
 
@@ -1140,33 +892,306 @@ angular.module('adama-mobile')
 
 'use strict';
 
-angular.module('adama-mobile').factory('AuthServerProvider', ["$http", "localStorageService", "Base64", "jHipsterConstant", function loginService($http, localStorageService, Base64, jHipsterConstant) {
+angular.module('adama-mobile').factory('authInterceptor', ["$rootScope", "$q", "$location", "localStorageService", function($rootScope, $q, $location, localStorageService) {
 	return {
-		login: function(credentials) {
-			var data = 'username=' + encodeURIComponent(credentials.username) + '&password=' + encodeURIComponent(credentials.password);
-			return $http.post(jHipsterConstant.apiBase + 'api/authenticate', data, {
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'Accept': 'application/json'
+		// Add authorization token to headers
+		request: function(config) {
+			config.headers = config.headers || {};
+			var token = localStorageService.get('token');
+
+			if (token && token.expires && token.expires > new Date().getTime()) {
+				config.headers['x-auth-token'] = token.token;
+			}
+
+			return config;
+		}
+	};
+}]).factory('authExpiredInterceptor', ["$rootScope", "$q", "$injector", "localStorageService", function($rootScope, $q, $injector, localStorageService) {
+	return {
+		responseError: function(response) {
+			// token has expired
+			if (response.status === 401 && (response.data.error === 'invalid_token' || response.data.error === 'Unauthorized')) {
+				localStorageService.remove('token');
+				var Principal = $injector.get('Principal');
+				if (Principal.isAuthenticated()) {
+					var Auth = $injector.get('Auth');
+					Auth.authorize(true);
 				}
-			}).success(function(response) {
-				localStorageService.set('token', response);
-				return response;
-			});
-		},
-		logout: function() {
-			// Stateless API : No server logout
-			localStorageService.clearAll();
-		},
-		getToken: function() {
-			return localStorageService.get('token');
-		},
-		hasValidToken: function() {
-			var token = this.getToken();
-			return token && token.expires && token.expires > new Date().getTime();
+			}
+			return $q.reject(response);
 		}
 	};
 }]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('errorHandlerInterceptor', ["$q", "$rootScope", "jHipsterConstant", function($q, $rootScope, jHipsterConstant) {
+	return {
+		'responseError': function(response) {
+			if (!(response.status === 401 && response.data.path.indexOf('/api/account') === 0)) {
+				$rootScope.$emit(jHipsterConstant.appModule + '.httpError', response);
+			}
+			return $q.reject(response);
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('notificationInterceptor', ["$q", "AlertService", "jHipsterConstant", function($q, AlertService, jHipsterConstant) {
+	return {
+		response: function(response) {
+			var alertKey = response.headers('X-' + jHipsterConstant.appModule + '-alert');
+			if (angular.isString(alertKey)) {
+				AlertService.success(alertKey, {
+					param: response.headers('X-' + jHipsterConstant.appModule + '-params')
+				});
+			}
+			return response;
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile')
+	.directive('jhAlert', ["AlertService", function(AlertService) {
+		return {
+			restrict: 'E',
+			template: '<div class="content-wrapper" ng-cloak ng-if="alerts && alerts.length">' +
+				'<div class="box-body">' +
+				'<div ng-repeat="alert in alerts" class="alert alert-dismissible" ng-class="\'alert-\' + alert.type">' +
+				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
+				'{{ alert.msg }}' +
+				'</div>' +
+				'</div>' +
+				'</div>',
+			controller: ['$scope',
+				function($scope) {
+					$scope.alerts = AlertService.get();
+					$scope.$on('$destroy', function() {
+						$scope.alerts = [];
+					});
+				}
+			]
+		};
+	}])
+	.directive('jhAlertError', ["AlertService", "$rootScope", "$translate", function(AlertService, $rootScope, $translate) {
+		return {
+			restrict: 'E',
+			template: '<div class="alerts" ng-if="alerts && alerts.length">' +
+				'<div ng-repeat="alert in alerts" class="alert alert-dismissible" ng-class="\'alert-\' + alert.type">' +
+				'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
+				'{{ alert.msg }}' +
+				'</div>' +
+				'</div>',
+			controller: ['$scope', 'jHipsterConstant',
+				function($scope, jHipsterConstant) {
+
+					$scope.alerts = [];
+
+					var addErrorAlert = function(message, key, data) {
+						key = key && key !== null ? key : message;
+						$scope.alerts.push(
+							AlertService.add({
+									type: 'danger',
+									msg: key,
+									params: data,
+									timeout: 5000,
+									toast: AlertService.isToast(),
+									scoped: true
+								},
+								$scope.alerts
+							)
+						);
+					};
+
+					var cleanHttpErrorListener = $rootScope.$on(jHipsterConstant.appModule + '.httpError', function(event, httpResponse) {
+						var i;
+						event.stopPropagation();
+						switch (httpResponse.status) {
+							// connection refused, server not reachable
+							case 0:
+								addErrorAlert('Server not reachable', 'error.server.not.reachable');
+								break;
+
+							case 400:
+								var errorHeader = httpResponse.headers('X-' + jHipsterConstant.appModule + '-error');
+								var entityKey = httpResponse.headers('X-' + jHipsterConstant.appModule + '-params');
+								if (errorHeader) {
+									var entityName = $translate.instant('global.menu.entities.' + entityKey);
+									addErrorAlert(errorHeader, errorHeader, {
+										entityName: entityName
+									});
+								} else if (httpResponse.data && httpResponse.data.fieldErrors) {
+									for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
+										var fieldError = httpResponse.data.fieldErrors[i];
+										// convert 'something[14].other[4].id'
+										// to 'something[].other[].id' so
+										// translations can be written to it
+										var convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
+										var fieldName = $translate.instant(jHipsterConstant.appModule + '.' + fieldError.objectName + '.' + convertedField);
+										addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
+											fieldName: fieldName
+										});
+									}
+								} else if (httpResponse.data && httpResponse.data.message) {
+									addErrorAlert(httpResponse.data.message, httpResponse.data.message, httpResponse.data);
+								} else {
+									addErrorAlert(httpResponse.data);
+								}
+								break;
+
+							default:
+								if (httpResponse.data && httpResponse.data.message) {
+									addErrorAlert(httpResponse.data.message);
+								} else {
+									addErrorAlert(JSON.stringify(httpResponse));
+								}
+						}
+					});
+
+					$scope.$on('$destroy', function() {
+						if (cleanHttpErrorListener !== undefined && cleanHttpErrorListener !== null) {
+							cleanHttpErrorListener();
+							$scope.alerts = [];
+						}
+					});
+				}
+			]
+		};
+	}]);
+
+'use strict';
+
+angular.module('adama-mobile')
+	.provider('AlertService', function() {
+		var toast = false;
+
+		this.$get = ['$timeout', '$sce', '$translate', function($timeout, $sce, $translate) {
+
+			var alertId = 0; // unique id for each alert. Starts from 0.
+			var alerts = [];
+			var timeout = 5000; // default timeout
+
+			var isToast = function() {
+				return toast;
+			};
+
+			var clear = function() {
+				alerts = [];
+			};
+
+			var get = function() {
+				return alerts;
+			};
+
+			var closeAlertByIndex = function(index, thisAlerts) {
+				return thisAlerts.splice(index, 1);
+			};
+
+			var closeAlert = function(id, extAlerts) {
+				var thisAlerts = extAlerts ? extAlerts : alerts;
+				return closeAlertByIndex(thisAlerts.map(function(e) {
+					return e.id;
+				}).indexOf(id), thisAlerts);
+			};
+
+			var factory = function(alertOptions) {
+				var alert = {
+					type: alertOptions.type,
+					msg: $sce.trustAsHtml(alertOptions.msg),
+					id: alertOptions.alertId,
+					timeout: alertOptions.timeout,
+					toast: alertOptions.toast,
+					position: alertOptions.position ? alertOptions.position : 'top right',
+					scoped: alertOptions.scoped,
+					close: function(alerts) {
+						return closeAlert(this.id, alerts);
+					}
+				};
+				if (!alert.scoped) {
+					alerts.push(alert);
+				}
+				return alert;
+			};
+
+			var addAlert = function(alertOptions, extAlerts) {
+				alertOptions.alertId = alertId++;
+				alertOptions.msg = $translate.instant(alertOptions.msg, alertOptions.params);
+				var alert = factory(alertOptions);
+				if (alertOptions.timeout && alertOptions.timeout > 0) {
+					$timeout(function() {
+						closeAlert(alertOptions.alertId, extAlerts);
+					}, alertOptions.timeout);
+				}
+				return alert;
+			};
+
+			var success = function(msg, params, position) {
+				return addAlert({
+					type: 'success',
+					msg: msg,
+					params: params,
+					timeout: timeout,
+					toast: toast,
+					position: position
+				});
+			};
+
+			var error = function(msg, params, position) {
+				return addAlert({
+					type: 'danger',
+					msg: msg,
+					params: params,
+					timeout: timeout,
+					toast: toast,
+					position: position
+				});
+			};
+
+			var warning = function(msg, params, position) {
+				return addAlert({
+					type: 'warning',
+					msg: msg,
+					params: params,
+					timeout: timeout,
+					toast: toast,
+					position: position
+				});
+			};
+
+			var info = function(msg, params, position) {
+				return addAlert({
+					type: 'info',
+					msg: msg,
+					params: params,
+					timeout: timeout,
+					toast: toast,
+					position: position
+				});
+			};
+
+			return {
+				factory: factory,
+				isToast: isToast,
+				add: addAlert,
+				closeAlert: closeAlert,
+				closeAlertByIndex: closeAlertByIndex,
+				clear: clear,
+				get: get,
+				success: success,
+				error: error,
+				info: info,
+				warning: warning
+			};
+		}];
+
+		this.showAsToast = function(isToast) {
+			toast = isToast;
+		};
+
+	});
 
 'use strict';
 
@@ -1199,6 +1224,36 @@ angular.module('adama-mobile').factory('PasswordResetInit', ["$resource", "jHips
 
 angular.module('adama-mobile').factory('PasswordResetFinish', ["$resource", "jHipsterConstant", function($resource, jHipsterConstant) {
 	return $resource(jHipsterConstant.apiBase + 'api/account/reset_password/finish', {}, {});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('AuthServerProvider', ["$http", "localStorageService", "Base64", "jHipsterConstant", function loginService($http, localStorageService, Base64, jHipsterConstant) {
+	return {
+		login: function(credentials) {
+			var data = 'username=' + encodeURIComponent(credentials.username) + '&password=' + encodeURIComponent(credentials.password);
+			return $http.post(jHipsterConstant.apiBase + 'api/authenticate', data, {
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'Accept': 'application/json'
+				}
+			}).success(function(response) {
+				localStorageService.set('token', response);
+				return response;
+			});
+		},
+		logout: function() {
+			// Stateless API : No server logout
+			localStorageService.clearAll();
+		},
+		getToken: function() {
+			return localStorageService.get('token');
+		},
+		hasValidToken: function() {
+			var token = this.getToken();
+			return token && token.expires && token.expires > new Date().getTime();
+		}
+	};
 }]);
 
 //# sourceMappingURL=adama-mobile.js.map
