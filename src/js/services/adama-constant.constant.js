@@ -8,5 +8,7 @@ angular.module('adama-mobile').constant('adamaConstant', {
 		authAccessDenied: 'adama-mobile/auth/accessDenied.html',
 		authSignin: 'adama-mobile/auth/signin.html',
 		authRecover: 'adama-mobile/auth/recoverPassword.html'
-	}
+	},
+	enableBadge: false,
+	enablePush: false
 });
