@@ -13,7 +13,7 @@ angular.module('adama-mobile').decorator('$ionicUser', function($delegate, $q, m
 			},
 			get: function(key){
 				console.warn('$ionicUser.current get', key);
-				return this.data[key],
+				return this.data[key];
 			},
 			details: {
 				external_id: 'loginFromAdamaApi',
