@@ -1,5 +1,5 @@
-/*jshint camelcase: false*/
-/*jscs:disable requireCamelCaseOrUpperCaseIdentifiers*/
+/*jshint -W069 */
+/*jscs:disable requireDotNotation*/
 'use strict';
 
 angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $ionicUser, adamaConstant) {
@@ -15,13 +15,13 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		var ionicUser = $ionicUser.current();
 		if (ionicUser.isAuthenticated()) {
 			principalPromise = $http({
-				method : 'GET',
-				url : adamaConstant.apiBase + 'api/users/byLogin/' + ionicUser.external_id
+				method: 'GET',
+				url: adamaConstant.apiBase + 'api/users/byLogin/' + ionicUser['external_id']
 			}).then(function(response) {
 				var principal = response.data;
 				isAuthenticated = true;
 				$rootScope.$broadcast('principal-new', {
-					principal : principal
+					principal: principal
 				});
 				return principal;
 			});
@@ -54,8 +54,8 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	api.resetPasswordInit = function(mail) {
 		console.log('resetPasswordInit', mail);
 		return passwordResetInitResource.save({
-			mail : mail,
-			urlResetPassword : adamaConstant.urlResetPassword
+			mail: mail,
+			urlResetPassword: adamaConstant.urlResetPassword
 		}).$promise;
 	};
 
@@ -63,7 +63,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		console.log('updateAccount', principal);
 		return accountResource.save(principal, function() {
 			$rootScope.$emit('principal-update', {
-				principal : principal
+				principal: principal
 			});
 			principalPromise = $q.when(principal);
 		}).$promise;
@@ -74,7 +74,6 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		return passwordResource.save({
 			password: newPassword
 		}).$promise;
-		}
 	};
 
 	return api;

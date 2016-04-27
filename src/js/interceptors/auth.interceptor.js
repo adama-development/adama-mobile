@@ -1,3 +1,5 @@
+/*jshint -W069 */
+/*jscs:disable requireDotNotation*/
 'use strict';
 
 angular.module('adama-mobile').factory('authInterceptor', function($injector, adamaConstant) {
@@ -12,8 +14,8 @@ angular.module('adama-mobile').factory('authInterceptor', function($injector, ad
 		// Add authorization token to headers
 		request: function(config) {
 			config.headers = config.headers || {};
-			if (!config.headers['x-auth-token'] && config.url.indexOf(adamaConstant.apiBase) === 0){
-				return getAdamaTokenService().getToken().then(function(token){
+			if (!config.headers['x-auth-token'] && config.url.indexOf(adamaConstant.apiBase) === 0) {
+				return getAdamaTokenService().getToken().then(function(token) {
 					if (token) {
 						config.headers['Authorization'] = 'Bearer ' + token;
 					}

@@ -4,14 +4,14 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 	var api = {};
 
 	var ionicUser = $ionicUser.current();
-	$rootScope.on('principal-new', function(){
-		ionicUser = $ionicUser.current()
+	$rootScope.on('principal-new', function() {
+		ionicUser = $ionicUser.current();
 	});
 
 	api.getToken = function() {
 		console.log('getToken');
 		var token;
-		if (ionicUser.isAuthenticated()){
+		if (ionicUser.isAuthenticated()) {
 			token = ionicUser.get('access_token');
 			if (jwtHelper.isTokenExpired(token)) {
 				return api.refreshAndGetToken();
@@ -24,21 +24,21 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 		var token = ionicUser.get('access_token');
 		var refreshToken = ionicUser.get('refresh_token');
 		return $http({
-			method : 'POST',
-			url : adamaConstant.apiBase + 'api/login/refresh',
-			headers : {
-				'Authorization' : 'Bearer ' + token
+			method: 'POST',
+			url: adamaConstant.apiBase + 'api/login/refresh',
+			headers: {
+				'Authorization': 'Bearer ' + token
 			},
 			data: {
-				'refresh_token' : refreshToken
+				'refresh_token': refreshToken
 			}
-		}).then(function(response){
+		}).then(function(response) {
 			var newToken = response.data;
 			ionicUser.set('access_token', newToken);
-			return ionicUser.save().then(function(){
+			return ionicUser.save().then(function() {
 				return newToken;
 			});
-		}, function(rejection){
+		}, function(rejection) {
 			console.error('error while refreshing user token, redirect to signin', rejection);
 			$state.go('auth.signin');
 		});

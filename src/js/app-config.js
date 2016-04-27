@@ -30,9 +30,9 @@ angular.module('adama-mobile').config(function($translateProvider) {
 
 	$translateProvider.useLocalStorage();
 
-	$translateProvider.registerAvailableLanguageKeys([ 'en', 'fr' ], {
-		'en_*' : 'en',
-		'fr_*' : 'fr'
+	$translateProvider.registerAvailableLanguageKeys(['en', 'fr'], {
+		'en_*': 'en',
+		'fr_*': 'fr'
 	});
 
 	$translateProvider.determinePreferredLanguage().fallbackLanguage('en');
@@ -40,9 +40,9 @@ angular.module('adama-mobile').config(function($translateProvider) {
 
 angular.module('adama-mobile').config(function($stateProvider, adamaConstant) {
 	$stateProvider.state('app', {
-		abstract : true,
-		url : '/app',
-		templateUrl : function() {
+		abstract: true,
+		url: '/app',
+		templateUrl: function() {
 			return adamaConstant.adamaMobileToolkitTemplateUrl.app;
 		}
 	});
@@ -86,7 +86,7 @@ angular.module('adama-mobile').run(function($rootScope) {
 
 angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant) {
 	var $ionicPlatform, $cordovaBadge;
-	if (adamaConstant.enableBadge){
+	if (adamaConstant.enableBadge) {
 		$ionicPlatform = $injector.get('$ionicPlatform');
 		$cordovaBadge = $injector.get('$cordovaBadge');
 		$ionicPlatform.on('resume', function() {
@@ -101,15 +101,15 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 
 angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant) {
 	var $ionicPlatform, $ionicPush, $ionicUser;
-	if (adamaConstant.enablePush){
+	if (adamaConstant.enablePush) {
 		$ionicPlatform = $injector.get('$ionicPlatform');
 		$ionicPush = $injector.get('$ionicPush');
 		$ionicUser = $injector.get('$ionicUser');
 		$ionicPlatform.ready(function() {
 			$ionicPush.init({
-				debug : false,
-				onNotification : function(notification) {
-					$rootScope.$apply(function(){
+				debug: false,
+				onNotification: function(notification) {
+					$rootScope.$apply(function() {
 						// TODO notification management
 						var payload = $ionicPush.getPayload(notification);
 						console.log('notification, payload', notification, payload);
@@ -121,7 +121,7 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 						}
 					});
 				},
-				onRegister : function(data) {
+				onRegister: function(data) {
 					console.log('Device token', data.token);
 				},
 				canShowAlert: false,
@@ -129,7 +129,7 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 				canPlaySound: true,
 				canRunActionsOnWake: true
 			});
-			if ($ionicUser.current().isAuthenticated()){
+			if ($ionicUser.current().isAuthenticated()) {
 				$ionicPush.register(function(data) {
 					console.log('register at startup ok', data);
 				});
@@ -137,12 +137,12 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 				$ionicPush.unregister();
 			}
 		});
-		$rootScope.on('principal-new', function(){
+		$rootScope.on('principal-new', function() {
 			$ionicPush.register(function(data) {
 				console.log('register after signing in ok', data);
 			});
 		});
-		$rootScope.on('principal-remove', function(){
+		$rootScope.on('principal-remove', function() {
 			$ionicPush.unregister();
 		});
 	}

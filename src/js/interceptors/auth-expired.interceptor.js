@@ -16,10 +16,10 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', function($injec
 	}());
 
 	return {
-		responseError : function(response) {
+		responseError: function(response) {
 			var config = response.config;
 			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				return getAdamaTokenService().refreshAndGetToken().then(function(){
+				return getAdamaTokenService().refreshAndGetToken().then(function() {
 					return getHttpService()(config);
 				});
 			}
