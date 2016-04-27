@@ -4,7 +4,7 @@
 
 angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $state, $ionicUser, adamaConstant) {
 	var api = {};
-	var principalPromise = $q.reject('not init');
+	var principalPromise;
 	var ionicUser = $ionicUser.current();
 	var isAuthenticated = ionicUser.isAuthenticated();
 	var accountResource = $resource(adamaConstant.apiBase + 'account', {}, {});
@@ -16,6 +16,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	});
 
 	api.resetPrincipal = function() {
+		var result;
 		if (isAuthenticated) {
 			var externalId = ionicUser.details['external_id'];
 			if (!externalId) {
@@ -23,7 +24,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				// external_id
 				console.error('error while reseting principal, no external_id, redirect to signin');
 				$state.go('auth.signin');
-				principalPromise = $q.reject('not logged');
+				result = $q.reject('resetPrincipal : no external_id');
 			} else {
 				principalPromise = $http({
 					method: 'GET',
@@ -36,6 +37,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 					});
 					return principal;
 				});
+				result = principalPromise;
 			}
 			// if (!externalId) {
 			// // FIXME external_id should be in details, not directly into
@@ -70,23 +72,22 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		} else {
 			console.error('error while reseting principal, not authenticated, redirect to signin');
 			$state.go('auth.signin');
-			principalPromise = $q.reject('not logged');
+			result = $q.reject('resetPrincipal : not authenticated');
 		}
-		return principalPromise;
+		return result;
 	};
 
 	api.getPrincipal = function() {
+		if (!principalPromise){
+			return api.resetPrincipal();
+		}
 		return principalPromise;
 	};
 
 	api.deletePrincipal = function() {
 		isAuthenticated = false;
-		principalPromise = $q.reject('not logged');
+		principalPromise = null;
 		$rootScope.$broadcast('principal-remove');
-	};
-
-	api.authorize = function() {
-		console.log('authorize');
 	};
 
 	api.hasAnyAuthority = function(authorities) {

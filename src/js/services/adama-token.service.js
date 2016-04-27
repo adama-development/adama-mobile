@@ -24,18 +24,20 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 		var token = ionicUser.get('access_token');
 		var refreshToken = ionicUser.get('refresh_token');
 		if (!token) {
+			// FIXME should not occur as ionicUser should always have a
+			// access_token
 			console.error('no token, redirect to signin');
 			$state.go('auth.signin');
-			return $q.reject('no token');
+			return $q.reject('refreshAndGetToken : no token');
 		}
 		return $http({
-			method: 'POST',
-			url: adamaConstant.apiBase + 'login/refresh',
-			headers: {
-				'Authorization': 'Bearer ' + token
+			method : 'POST',
+			url : adamaConstant.apiBase + 'login/refresh',
+			headers : {
+				'Authorization' : 'Bearer ' + token
 			},
-			data: {
-				'refresh_token': refreshToken
+			data : {
+				'refresh_token' : refreshToken
 			}
 		}).then(function(response) {
 			var newToken = response.data;
