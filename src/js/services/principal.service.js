@@ -14,17 +14,33 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		isAuthenticated = false;
 		var ionicUser = $ionicUser.current();
 		if (ionicUser.isAuthenticated()) {
-			principalPromise = $http({
-				method: 'GET',
-				url: adamaConstant.apiBase + 'api/users/byLogin/' + ionicUser['external_id']
-			}).then(function(response) {
-				var principal = response.data;
-				isAuthenticated = true;
-				$rootScope.$broadcast('principal-new', {
-					principal: principal
-				});
-				return principal;
-			});
+			var externalId = ionicUser.details['external_id'];
+			if (!externalId) {
+				externalId = ionicUser['external_id'];
+			}
+			if (!externalId) {
+				principalPromise = $q.reject('not logged');
+			} else {
+				var token = ionicUser.get('access_token');
+				if (!token) {
+					principalPromise = $http({
+						method: 'GET',
+						headers: {
+							'Authorization': 'Bearer ' + token
+						},
+						url: adamaConstant.apiBase + 'api/users/byLogin/' + externalId
+					}).then(function(response) {
+						var principal = response.data;
+						isAuthenticated = true;
+						$rootScope.$broadcast('principal-new', {
+							principal: principal
+						});
+						return principal;
+					});
+				} else {
+					principalPromise = $q.reject('not logged');
+				}
+			}
 		} else {
 			principalPromise = $q.reject('not logged');
 		}
