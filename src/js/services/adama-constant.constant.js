@@ -10,5 +10,6 @@ angular.module('adama-mobile').constant('adamaConstant', {
 		authRecover: 'adama-mobile/auth/recoverPassword.html'
 	},
 	enableBadge: false,
-	enablePush: false
+	enablePush: false,
+	urlResetPassword: 'path/to/reset/password?isMobile=true'
 });

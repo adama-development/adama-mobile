@@ -7,14 +7,22 @@ angular.module('adama-mobile').decorator('$ionicUser', function($delegate, $q, m
 	$delegate.current = function() {
 		console.log('decorated $ionicUser.current');
 		return {
-			external_id: 'loginFromAdamaApi',
 			isAuthenticated: function(){
 				console.warn('$ionicUser.current isAuthenticated');
 				return isAuthenticated;
 			},
 			get: function(key){
 				console.warn('$ionicUser.current get', key);
-				return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlNwb25nZSBCb2IifQ.s0TgonAwWEuJcLiidUDscCnPga5b4-xkM35fAuK5_KE';
+				return this.data[key],
+			},
+			details: {
+				external_id: 'loginFromAdamaApi',
+				image: 'pth/to/avatar.png',
+				name: 'Sponge Bob'
+			},
+			data: {
+				'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlNwb25nZSBCb2IifQ.s0TgonAwWEuJcLiidUDscCnPga5b4-xkM35fAuK5_KE',
+				'refresh_token': 'TODO'
 			}
 		};
 	};

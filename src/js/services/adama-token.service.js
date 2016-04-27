@@ -1,14 +1,18 @@
 'use strict';
 
-angular.module('adama-mobile').factory('adamaTokenService', function($http, $q, $state, $ionicUser, jwtHelper, adamaConstant) {
+angular.module('adama-mobile').factory('adamaTokenService', function($rootScope, $http, $q, $state, $ionicUser, jwtHelper, adamaConstant) {
 	var api = {};
+
+	var ionicUser = $ionicUser.current();
+	$rootScope.on('principal-new', function(){
+		ionicUser = $ionicUser.current()
+	});
 
 	api.getToken = function() {
 		console.log('getToken');
 		var token;
-		var ionicUser = $ionicUser.current();
 		if (ionicUser.isAuthenticated()){
-			token = ionicUser.get('token');
+			token = ionicUser.get('access_token');
 			if (jwtHelper.isTokenExpired(token)) {
 				return api.refreshAndGetToken();
 			}
@@ -17,20 +21,21 @@ angular.module('adama-mobile').factory('adamaTokenService', function($http, $q, 
 	};
 
 	api.refreshAndGetToken = function() {
-		var user = $ionicUser.current();
-		var token = user.get('token');
-		var refreshToken = user.get('refreshToken');
+		var token = ionicUser.get('access_token');
+		var refreshToken = ionicUser.get('refresh_token');
 		return $http({
-			method : 'GET',
-			url : adamaConstant.apiBase + 'api/refreshToken',
+			method : 'POST',
+			url : adamaConstant.apiBase + 'api/login/refresh',
 			headers : {
-				'x-auth-token' : token,
-				'x-auth-refresh-token' : refreshToken
+				'Authorization' : 'Bearer ' + token
+			},
+			data: {
+				'refresh_token' : refreshToken
 			}
 		}).then(function(response){
 			var newToken = response.data;
-			user.set('token', newToken);
-			return user.save().then(function(){
+			ionicUser.set('access_token', newToken);
+			return ionicUser.save().then(function(){
 				return newToken;
 			});
 		}, function(rejection){

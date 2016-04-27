@@ -53,7 +53,10 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 
 	api.resetPasswordInit = function(mail) {
 		console.log('resetPasswordInit', mail);
-		return passwordResetInitResource.save(mail).$promise;
+		return passwordResetInitResource.save({
+			mail : mail,
+			urlResetPassword : adamaConstant.urlResetPassword
+		}).$promise;
 	};
 
 	api.updateAccount = function(principal) {
@@ -68,7 +71,10 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 
 	api.changePassword = function(newPassword) {
 		console.log('changePassword');
-		return passwordResource.save(newPassword).$promise;
+		return passwordResource.save({
+			password: newPassword
+		}).$promise;
+		}
 	};
 
 	return api;
