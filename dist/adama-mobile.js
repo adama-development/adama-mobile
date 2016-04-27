@@ -325,6 +325,151 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 
 'use strict';
 
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			var updateOutput = function(binaryFileList) {
+				if (attrs.output) {
+					binaryFileList = angular.copy(binaryFileList);
+				}
+				if (!angular.isArray(binaryFileList)) {
+					binaryFileList = [binaryFileList];
+				}
+				binaryFileService.initUrlForBinaryFiles(binaryFileList).then(function() {
+					if (attrs.output) {
+						$parse(attrs.output).assign(scope, binaryFileList);
+					}
+				});
+			};
+			scope.$watch(attrs.input, function() {
+				var binaryFileList = $parse(attrs.input)(scope);
+				if (binaryFileList) {
+					updateOutput(binaryFileList);
+				}
+			});
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsLanguage', ["$parse", "language", function($parse, language) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			language.getAll().then(function(languages) {
+				$parse(attrs.data).assign(scope, languages);
+			});
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "$parse", "principalService", function($rootScope, $parse, principalService) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			$rootScope.$on('principal-new', function(event, data) {
+				$parse(attrs.data).assign(scope, data.principal);
+			});
+			$rootScope.$on('principal-remove', function() {
+				$parse(attrs.data).assign(scope, undefined);
+			});
+			principalService.getPrincipal().then(function(principal) {
+				$parse(attrs.data).assign(scope, principal);
+			});
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "$q", "adamaConstant", function($injector, $q, adamaConstant) {
+	var getHttpService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('$http'));
+		};
+	}());
+
+	var getAdamaTokenService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('adamaTokenService'));
+		};
+	}());
+
+	return {
+		responseError: function(response) {
+			var config = response.config;
+			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
+				return getAdamaTokenService().refreshAndGetToken().then(function() {
+					return getHttpService()(config);
+				});
+			}
+			return $q.reject(response);
+		}
+	};
+}]);
+
+/*jshint -W069 */
+/*jscs:disable requireDotNotation*/
+'use strict';
+
+angular.module('adama-mobile').factory('authInterceptor', ["$injector", "adamaConstant", function($injector, adamaConstant) {
+	var getAdamaTokenService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('adamaTokenService'));
+		};
+	}());
+
+	return {
+		// Add authorization token to headers
+		request: function(config) {
+			config.headers = config.headers || {};
+			if (!config.headers['Authorization'] && config.url.indexOf(adamaConstant.apiBase) === 0) {
+				return getAdamaTokenService().getToken().then(function(token) {
+					if (token) {
+						config.headers['Authorization'] = 'Bearer ' + token;
+					}
+					return config;
+				});
+			}
+			return config;
+		}
+	};
+}]);
+
+'use strict';
+
 // TODO still needed ?
 angular.module('adama-mobile')
 	.directive('jhAlert', ["AlertService", function(AlertService) {
@@ -577,7 +722,7 @@ angular.module('adama-mobile').factory('User', ["$resource", "adamaConstant", "a
 			}
 		}
 	});
-	return $resource(adamaConstant.apiBase + 'api/users/:login', {}, config);
+	return $resource(adamaConstant.apiBase + 'users/:login', {}, config);
 }]);
 
 'use strict';
@@ -663,9 +808,16 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	api.refreshAndGetToken = function() {
 		var token = ionicUser.get('access_token');
 		var refreshToken = ionicUser.get('refresh_token');
+		if (!token) {
+			// FIXME should not occur as ionicUser should always have a
+			// access_token
+			console.error('no token, redirect to signin');
+			$state.go('auth.signin');
+			return $q.reject('refreshAndGetToken : no token');
+		}
 		return $http({
 			method: 'POST',
-			url: adamaConstant.apiBase + 'api/login/refresh',
+			url: adamaConstant.apiBase + 'login/refresh',
 			headers: {
 				'Authorization': 'Bearer ' + token
 			},
@@ -681,6 +833,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 		}, function(rejection) {
 			console.error('error while refreshing user token, redirect to signin', rejection);
 			$state.go('auth.signin');
+			return $q.reject(rejection);
 		});
 	};
 
@@ -743,13 +896,11 @@ angular.module('adama-mobile').factory('binaryFileService', ["$http", "$q", "ada
 		if (idList.length) {
 			return $http({
 				method: 'PUT',
-				url: adamaConstant.apiBase + 'api/files',
-				data: {
-					idList: idList
-				}
+				url: adamaConstant.apiBase + 'files',
+				data: angular.toJson(idList)
 			}).then(function(response) {
 				angular.forEach(workingList, function(binaryFile) {
-					binaryFile.url = response.data[binaryFile.id];
+					binaryFile.url = response.data.urlList[binaryFile.id];
 				});
 			});
 		}
@@ -856,47 +1007,96 @@ angular.module('adama-mobile').service('ParseLinks', function() {
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", "$http", "$resource", "$ionicUser", "adamaConstant", function($rootScope, $q, $http, $resource, $ionicUser, adamaConstant) {
+angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", "$http", "$resource", "$state", "$ionicUser", "adamaConstant", function($rootScope, $q, $http, $resource, $state, $ionicUser, adamaConstant) {
 	var api = {};
-	var principalPromise = $q.reject('not init');
-	var isAuthenticated = false;
-	var accountResource = $resource(adamaConstant.apiBase + 'api/account', {}, {});
-	var passwordResource = $resource(adamaConstant.apiBase + 'api/account/change_password', {}, {});
-	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'api/account/reset_password/init', {}, {});
+	var principalPromise;
+	var ionicUser = $ionicUser.current();
+	var isAuthenticated = ionicUser.isAuthenticated();
+	var accountResource = $resource(adamaConstant.apiBase + 'account', {}, {});
+	var passwordResource = $resource(adamaConstant.apiBase + 'account/change_password', {}, {});
+	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'account/reset_password/init', {}, {});
+
+	api.isAuthenticated = function() {
+		return isAuthenticated;
+	};
 
 	api.resetPrincipal = function() {
-		isAuthenticated = false;
-		var ionicUser = $ionicUser.current();
-		if (ionicUser.isAuthenticated()) {
-			principalPromise = $http({
-				method: 'GET',
-				url: adamaConstant.apiBase + 'api/users/byLogin/' + ionicUser['external_id']
-			}).then(function(response) {
-				var principal = response.data;
-				isAuthenticated = true;
-				$rootScope.$broadcast('principal-new', {
-					principal: principal
+		var result;
+		if (isAuthenticated) {
+			var externalId = ionicUser.details['external_id'];
+			if (!externalId) {
+				// FIXME should not occur, every ionicuser should have an
+				// external_id
+				console.error('error while reseting principal, no external_id, redirect to signin');
+				result = $q.reject('resetPrincipal : no external_id');
+			} else {
+				principalPromise = $http({
+					method: 'GET',
+					url: adamaConstant.apiBase + 'api/users/byLogin/' + externalId
+				}).then(function(response) {
+					var principal = response.data;
+					isAuthenticated = true;
+					ionicUser = $ionicUser.current();
+					$rootScope.$broadcast('principal-new', {
+						principal: principal
+					});
+					return principal;
 				});
-				return principal;
-			});
+				result = principalPromise;
+			}
+			// if (!externalId) {
+			// // FIXME external_id should be in details, not directly into
+			// ionicUser
+			// externalId = ionicUser['external_id'];
+			// }
+			// if (!externalId) {
+			// // FIXME should not occur, every ionicuser should have an
+			// external_id
+			// principalPromise = $q.reject('not logged');
+			// } else {
+			// var token = ionicUser.get('access_token');
+			// if (!token) {
+			// principalPromise = $http({
+			// method: 'GET',
+			// headers: {
+			// 'Authorization': 'Bearer ' + token
+			// },
+			// url: adamaConstant.apiBase + 'users/byLogin/' + externalId
+			// }).then(function(response) {
+			// var principal = response.data;
+			// isAuthenticated = true;
+			// $rootScope.$broadcast('principal-new', {
+			// principal: principal
+			// });
+			// return principal;
+			// });
+			// } else {
+			// principalPromise = $q.reject('not logged');
+			// }
+			// }
 		} else {
-			principalPromise = $q.reject('not logged');
+			console.error('error while reseting principal, not authenticated, redirect to signin');
+			result = $q.reject('resetPrincipal : not authenticated');
 		}
-		return principalPromise;
+		return result.catch(function(rejection) {
+			isAuthenticated = false;
+			principalPromise = undefined;
+			$state.go('auth.signin');
+			return $q.reject(rejection);
+		});
 	};
 
 	api.getPrincipal = function() {
+		if (!principalPromise) {
+			return api.resetPrincipal();
+		}
 		return principalPromise;
 	};
 
 	api.deletePrincipal = function() {
 		isAuthenticated = false;
-		principalPromise = $q.reject('not logged');
+		principalPromise = undefined;
 		$rootScope.$broadcast('principal-remove');
-	};
-
-	api.authorize = function() {
-		console.log('authorize');
 	};
 
 	api.hasAnyAuthority = function(authorities) {
@@ -931,151 +1131,6 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 	};
 
 	return api;
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
-
-'use strict';
-
-angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
-	return {
-		scope: false,
-		link: function(scope, element, attrs) {
-			var updateOutput = function(binaryFileList) {
-				if (attrs.output) {
-					binaryFileList = angular.copy(binaryFileList);
-				}
-				if (!angular.isArray(binaryFileList)) {
-					binaryFileList = [binaryFileList];
-				}
-				binaryFileService.initUrlForBinaryFiles(binaryFileList).then(function() {
-					if (attrs.output) {
-						$parse(attrs.output).assign(scope, binaryFileList);
-					}
-				});
-			};
-			scope.$watch(attrs.input, function() {
-				var binaryFileList = $parse(attrs.input)(scope);
-				if (binaryFileList) {
-					updateOutput(binaryFileList);
-				}
-			});
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').directive('dsLanguage', ["$parse", "language", function($parse, language) {
-	return {
-		scope: false,
-		link: function(scope, element, attrs) {
-			language.getAll().then(function(languages) {
-				$parse(attrs.data).assign(scope, languages);
-			});
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "$parse", "principalService", function($rootScope, $parse, principalService) {
-	return {
-		scope: false,
-		link: function(scope, element, attrs) {
-			$rootScope.$on('principal-new', function(event, data) {
-				$parse(attrs.data).assign(scope, data.principal);
-			});
-			$rootScope.$on('principal-remove', function() {
-				$parse(attrs.data).assign(scope, undefined);
-			});
-			principalService.getPrincipal().then(function(principal) {
-				$parse(attrs.data).assign(scope, principal);
-			});
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "$q", "adamaConstant", function($injector, $q, adamaConstant) {
-	var getHttpService = (function() {
-		var service;
-		return function() {
-			return service || (service = $injector.get('$http'));
-		};
-	}());
-
-	var getAdamaTokenService = (function() {
-		var service;
-		return function() {
-			return service || (service = $injector.get('adamaTokenService'));
-		};
-	}());
-
-	return {
-		responseError: function(response) {
-			var config = response.config;
-			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				return getAdamaTokenService().refreshAndGetToken().then(function() {
-					return getHttpService()(config);
-				});
-			}
-			return $q.reject(response);
-		}
-	};
-}]);
-
-/*jshint -W069 */
-/*jscs:disable requireDotNotation*/
-'use strict';
-
-angular.module('adama-mobile').factory('authInterceptor', ["$injector", "adamaConstant", function($injector, adamaConstant) {
-	var getAdamaTokenService = (function() {
-		var service;
-		return function() {
-			return service || (service = $injector.get('adamaTokenService'));
-		};
-	}());
-
-	return {
-		// Add authorization token to headers
-		request: function(config) {
-			config.headers = config.headers || {};
-			if (!config.headers['x-auth-token'] && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				return getAdamaTokenService().getToken().then(function(token) {
-					if (token) {
-						config.headers['Authorization'] = 'Bearer ' + token;
-					}
-					return config;
-				});
-			}
-			return config;
-		}
-	};
 }]);
 
 //# sourceMappingURL=adama-mobile.js.map
