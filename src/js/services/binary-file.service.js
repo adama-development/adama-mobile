@@ -16,12 +16,10 @@ angular.module('adama-mobile').factory('binaryFileService', function($http, $q, 
 			return $http({
 				method: 'PUT',
 				url: adamaConstant.apiBase + 'api/files',
-				data: {
-					idList: idList
-				}
+				data: angular.toJson(idList)
 			}).then(function(response) {
 				angular.forEach(workingList, function(binaryFile) {
-					binaryFile.url = response.data[binaryFile.id];
+					binaryFile.url = response.data.urlList[binaryFile.id];
 				});
 			});
 		}
