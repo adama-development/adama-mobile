@@ -23,6 +23,11 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 	api.refreshAndGetToken = function() {
 		var token = ionicUser.get('access_token');
 		var refreshToken = ionicUser.get('refresh_token');
+		if (!token) {
+			console.error('no token, redirect to signin');
+			$state.go('auth.signin');
+			return $q.reject('no token');
+		}
 		return $http({
 			method: 'POST',
 			url: adamaConstant.apiBase + 'api/login/refresh',
