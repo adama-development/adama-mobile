@@ -46,6 +46,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 		}, function(rejection) {
 			console.error('error while refreshing user token, redirect to signin', rejection);
 			$state.go('auth.signin');
+			return $q.reject(rejection);
 		});
 	};
 
