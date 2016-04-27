@@ -6,9 +6,9 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	var api = {};
 	var principalPromise = $q.reject('not init');
 	var isAuthenticated = false;
-	var accountResource = $resource(adamaConstant.apiBase + 'api/account', {}, {});
-	var passwordResource = $resource(adamaConstant.apiBase + 'api/account/change_password', {}, {});
-	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'api/account/reset_password/init', {}, {});
+	var accountResource = $resource(adamaConstant.apiBase + 'account', {}, {});
+	var passwordResource = $resource(adamaConstant.apiBase + 'account/change_password', {}, {});
+	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'account/reset_password/init', {}, {});
 
 	api.resetPrincipal = function() {
 		isAuthenticated = false;
@@ -28,7 +28,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 						headers: {
 							'Authorization': 'Bearer ' + token
 						},
-						url: adamaConstant.apiBase + 'api/users/byLogin/' + externalId
+						url: adamaConstant.apiBase + 'users/byLogin/' + externalId
 					}).then(function(response) {
 						var principal = response.data;
 						isAuthenticated = true;

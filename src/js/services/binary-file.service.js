@@ -15,7 +15,7 @@ angular.module('adama-mobile').factory('binaryFileService', function($http, $q, 
 		if (idList.length) {
 			return $http({
 				method: 'PUT',
-				url: adamaConstant.apiBase + 'api/files',
+				url: adamaConstant.apiBase + 'files',
 				data: angular.toJson(idList)
 			}).then(function(response) {
 				angular.forEach(workingList, function(binaryFile) {

@@ -3,8 +3,8 @@
 angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 	var entities = mockSettings.users;
 
-	$httpBackend.when('GET', '/api/users').respond(function() {
-		console.warn('GET /api/users (PDF mass export)');
+	$httpBackend.when('GET', '/users').respond(function() {
+		console.warn('GET /users (PDF mass export)');
 		var request = new XMLHttpRequest();
 		request.open('GET', 'mock/pdf/users.pdf', false);
 		request.send(null);
@@ -12,9 +12,9 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 	});
 
 	$httpBackend.when('GET', /^\/api\/users\?.*/).respond(function(method, url) {
-		console.warn('GET /api/users (JSON list)', url);
+		console.warn('GET /users (JSON list)', url);
 		return [ 200, entities, {
-			'Link' : '</api/users?page=0&size=20>; rel="last",</api/users?page=0&size=20>; rel="first"',
+			'Link' : '</users?page=0&size=20>; rel="last",</users?page=0&size=20>; rel="first"',
 			'X-Total-Count' : 35
 		} ];
 	});
@@ -40,13 +40,13 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 	};
 
 	$httpBackend.when('GET', /^\/api\/users\/byLogin\/.*/).respond(function(method, url) {
-		console.warn('GET /api/users/byLogin/xx', url);
+		console.warn('GET /users/byLogin/xx', url);
 		return [ 200, mockSettings.connectedUser ];
 	});
 
 	$httpBackend.when('GET', /^\/api\/users\/.*/).respond(function(method, url) {
-		console.warn('GET /api/users/xx', url);
-		var id = url.substring('/api/users/'.length);
+		console.warn('GET /users/xx', url);
+		var id = url.substring('/users/'.length);
 		var entity = getById(id);
 		if (entity) {
 			return [ 200, entity ];
@@ -55,8 +55,8 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 	});
 
 	$httpBackend.when('DELETE', /^\/api\/users\/.*/).respond(function(method, url) {
-		console.warn('DELETE /api/users/xx', url);
-		var id = url.substring('/api/users/'.length);
+		console.warn('DELETE /users/xx', url);
+		var id = url.substring('/users/'.length);
 		var entity = getById(id);
 		if (entity) {
 			entities.splice(entities.indexOf(entity), 1);
@@ -64,8 +64,8 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return [ 200 ];
 	});
 
-	$httpBackend.when('PUT', '/api/users').respond(function(method, url, data) {
-		console.warn('PUT /api/users', url, data);
+	$httpBackend.when('PUT', '/users').respond(function(method, url, data) {
+		console.warn('PUT /users', url, data);
 		var postedData = JSON.parse(data);
 		var id = postedData.login;
 		var entity = getById(id);
@@ -77,8 +77,8 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return [ 200, postedData ];
 	});
 
-	$httpBackend.when('POST', '/api/users').respond(function(method, url, data, headers) {
-		console.warn('POST /api/users (new user)', url, data);
+	$httpBackend.when('POST', '/users').respond(function(method, url, data, headers) {
+		console.warn('POST /users (new user)', url, data);
 		var postedData = JSON.parse(data);
 		var id = postedData.login;
 		var entity = getById(id);
@@ -99,8 +99,8 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return [ 200, postedData ];
 	});
 
-	$httpBackend.when('POST', '/api/users?method=import-xls').respond(function(method, url, data) {
-		console.warn('POST /api/users (import-xls)', data);
+	$httpBackend.when('POST', '/users?method=import-xls').respond(function(method, url, data) {
+		console.warn('POST /users (import-xls)', data);
 		return [ 200 ];
 	});
 });

@@ -30,7 +30,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 		}
 		return $http({
 			method: 'POST',
-			url: adamaConstant.apiBase + 'api/login/refresh',
+			url: adamaConstant.apiBase + 'login/refresh',
 			headers: {
 				'Authorization': 'Bearer ' + token
 			},

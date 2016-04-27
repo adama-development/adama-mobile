@@ -16,7 +16,7 @@ angular.module('adama-mobile').factory('authService', function($http, $ionicAuth
 			console.log('login is ok, ask custom auth server to refresh the user data');
 			return $http({
 				method: 'POST',
-				url: adamaConstant.apiBase + 'api/externalLogin/refreshUserExternal',
+				url: adamaConstant.apiBase + 'externalLogin/refreshUserExternal',
 				data: {
 					externalId: username
 				}
