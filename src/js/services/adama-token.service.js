@@ -31,13 +31,13 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 			return $q.reject('refreshAndGetToken : no token');
 		}
 		return $http({
-			method : 'POST',
-			url : adamaConstant.apiBase + 'login/refresh',
-			headers : {
-				'Authorization' : 'Bearer ' + token
+			method: 'POST',
+			url: adamaConstant.apiBase + 'login/refresh',
+			headers: {
+				'Authorization': 'Bearer ' + token
 			},
-			data : {
-				'refresh_token' : refreshToken
+			data: {
+				'refresh_token': refreshToken
 			}
 		}).then(function(response) {
 			var newToken = response.data;

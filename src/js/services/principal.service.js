@@ -11,9 +11,9 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	var passwordResource = $resource(adamaConstant.apiBase + 'account/change_password', {}, {});
 	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'account/reset_password/init', {}, {});
 
-	$rootScope.$on('principal-new', function() {
-		ionicUser = $ionicUser.current();
-	});
+	api.isAuthenticated = function() {
+		return isAuthenticated;
+	};
 
 	api.resetPrincipal = function() {
 		var result;
@@ -23,7 +23,6 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				// FIXME should not occur, every ionicuser should have an
 				// external_id
 				console.error('error while reseting principal, no external_id, redirect to signin');
-				$state.go('auth.signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
 				principalPromise = $http({
@@ -32,6 +31,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				}).then(function(response) {
 					var principal = response.data;
 					isAuthenticated = true;
+					ionicUser = $ionicUser.current();
 					$rootScope.$broadcast('principal-new', {
 						principal: principal
 					});
@@ -71,14 +71,18 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 			// }
 		} else {
 			console.error('error while reseting principal, not authenticated, redirect to signin');
-			$state.go('auth.signin');
 			result = $q.reject('resetPrincipal : not authenticated');
 		}
-		return result;
+		return result.catch(function(rejection) {
+			isAuthenticated = false;
+			principalPromise = undefined;
+			$state.go('auth.signin');
+			return $q.reject(rejection);
+		});
 	};
 
 	api.getPrincipal = function() {
-		if (!principalPromise){
+		if (!principalPromise) {
 			return api.resetPrincipal();
 		}
 		return principalPromise;
@@ -86,7 +90,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 
 	api.deletePrincipal = function() {
 		isAuthenticated = false;
-		principalPromise = null;
+		principalPromise = undefined;
 		$rootScope.$broadcast('principal-remove');
 	};
 
