@@ -137,12 +137,12 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 				$ionicPush.unregister();
 			}
 		});
-		$rootScope.on('principal-new', function() {
+		$rootScope.$on('principal-new', function() {
 			$ionicPush.register(function(data) {
 				console.log('register after signing in ok', data);
 			});
 		});
-		$rootScope.on('principal-remove', function() {
+		$rootScope.$on('principal-remove', function() {
 			$ionicPush.unregister();
 		});
 	}

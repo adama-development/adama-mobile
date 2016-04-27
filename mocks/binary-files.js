@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('adama-mobile').run(function($httpBackend, $http) {
-	$httpBackend.when('GET', '/api/binaryFiles').respond(function(method, url, data) {
+	$httpBackend.when('PUT', '/api/files').respond(function(method, url, data) {
 		data = JSON.parse(data);
-		console.warn('GET /api/binaryFiles', method, url, data);
+		console.warn('PUT /api/files', method, url, data);
 		var result = {};
-		angular.forEach(data.ids, function(id) {
+		angular.forEach(data.idList, function(id) {
 			result[id] = id + '?comingFormMock=true';
-		})
+		});
 		return [ 200, result ];
 	});
 });

@@ -154,12 +154,12 @@ angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", 
 				$ionicPush.unregister();
 			}
 		});
-		$rootScope.on('principal-new', function() {
+		$rootScope.$on('principal-new', function() {
 			$ionicPush.register(function(data) {
 				console.log('register after signing in ok', data);
 			});
 		});
-		$rootScope.on('principal-remove', function() {
+		$rootScope.$on('principal-remove', function() {
 			$ionicPush.unregister();
 		});
 	}
@@ -392,12 +392,18 @@ angular.module('adama-mobile').directive('dsLanguage', ["$parse", "language", fu
 
 'use strict';
 
-angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$parse", "principalService", function($parse, principalService) {
+angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "$parse", "principalService", function($rootScope, $parse, principalService) {
 	return {
 		scope: false,
 		link: function(scope, element, attrs) {
-			principalService.getPrincipal().then(function(account) {
-				$parse(attrs.data).assign(scope, account);
+			$rootScope.$on('principal-new', function(event, data) {
+				$parse(attrs.data).assign(scope, data.principal);
+			});
+			$rootScope.$on('principal-remove', function() {
+				$parse(attrs.data).assign(scope, undefined);
+			});
+			principalService.getPrincipal().then(function(principal) {
+				$parse(attrs.data).assign(scope, principal);
 			});
 		}
 	};
@@ -783,7 +789,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	var api = {};
 
 	var ionicUser = $ionicUser.current();
-	$rootScope.on('principal-new', function() {
+	$rootScope.$on('principal-new', function() {
 		ionicUser = $ionicUser.current();
 	});
 

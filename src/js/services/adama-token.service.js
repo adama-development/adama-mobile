@@ -4,7 +4,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 	var api = {};
 
 	var ionicUser = $ionicUser.current();
-	$rootScope.on('principal-new', function() {
+	$rootScope.$on('principal-new', function() {
 		ionicUser = $ionicUser.current();
 	});
 
