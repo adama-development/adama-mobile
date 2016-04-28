@@ -325,31 +325,6 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 
 'use strict';
 
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
-
-'use strict';
-
 angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
 	return {
 		scope: false,
@@ -408,6 +383,31 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 		}
 	};
 }]);
+
+'use strict';
+
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
 
 'use strict';
 
@@ -806,6 +806,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	};
 
 	api.refreshAndGetToken = function() {
+		var ionicUser = $ionicUser.current();
 		var token = ionicUser.get('access_token');
 		var refreshToken = ionicUser.get('refresh_token');
 		if (!token) {
@@ -815,6 +816,8 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			$state.go('auth.signin');
 			return $q.reject('refreshAndGetToken : no token');
 		}
+		console.log('refreshAndGetToken : token' + token);
+		console.log('refreshAndGetToken : refreshToken' + refreshToken);
 		return $http({
 			method: 'POST',
 			url: adamaConstant.apiBase + 'login/refresh',
@@ -1022,6 +1025,8 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 
 	api.resetPrincipal = function() {
 		var result;
+		ionicUser = $ionicUser.current();
+		isAuthenticated = ionicUser.isAuthenticated();
 		if (isAuthenticated) {
 			var externalId = ionicUser.details['external_id'];
 			if (!externalId) {
@@ -1030,9 +1035,13 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 				console.error('error while reseting principal, no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
+				var token = ionicUser.get('access_token');
 				principalPromise = $http({
 					method: 'GET',
-					url: adamaConstant.apiBase + 'api/users/byLogin/' + externalId
+					headers: {
+						'Authorization': 'Bearer ' + token
+					},
+					url: adamaConstant.apiBase + 'users/byLogin/' + externalId
 				}).then(function(response) {
 					var principal = response.data;
 					isAuthenticated = true;
