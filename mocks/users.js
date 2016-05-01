@@ -11,7 +11,7 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return [ request.status, request.response, {} ];
 	});
 
-	$httpBackend.when('GET', /^\/api\/users\?.*/).respond(function(method, url) {
+	$httpBackend.when('GET', /^\/users\?.*/).respond(function(method, url) {
 		console.warn('GET /users (JSON list)', url);
 		return [ 200, entities, {
 			'Link' : '</users?page=0&size=20>; rel="last",</users?page=0&size=20>; rel="first"',
@@ -39,12 +39,12 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return entity;
 	};
 
-	$httpBackend.when('GET', /^\/api\/users\/byLogin\/.*/).respond(function(method, url) {
+	$httpBackend.when('GET', /^\/users\/byLogin\/.*/).respond(function(method, url) {
 		console.warn('GET /users/byLogin/xx', url);
 		return [ 200, mockSettings.connectedUser ];
 	});
 
-	$httpBackend.when('GET', /^\/api\/users\/.*/).respond(function(method, url) {
+	$httpBackend.when('GET', /^\/users\/.*/).respond(function(method, url) {
 		console.warn('GET /users/xx', url);
 		var id = url.substring('/users/'.length);
 		var entity = getById(id);
@@ -54,7 +54,7 @@ angular.module('adama-mobile').run(function($httpBackend, $http, mockSettings) {
 		return [ 404 ];
 	});
 
-	$httpBackend.when('DELETE', /^\/api\/users\/.*/).respond(function(method, url) {
+	$httpBackend.when('DELETE', /^\/users\/.*/).respond(function(method, url) {
 		console.warn('DELETE /users/xx', url);
 		var id = url.substring('/users/'.length);
 		var entity = getById(id);
