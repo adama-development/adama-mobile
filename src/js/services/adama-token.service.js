@@ -9,11 +9,13 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 	});
 
 	api.getToken = function() {
-		console.log('getToken');
+		console.log('adamaTokenService.getToken');
 		var token;
 		if (ionicUser.isAuthenticated()) {
+			console.log('adamaTokenService.getToken user is uthenticated');
 			token = ionicUser.get('access_token');
 			if (jwtHelper.isTokenExpired(token)) {
+				console.log('adamaTokenService.getToken token is expired');
 				return api.refreshAndGetToken();
 			}
 		}
@@ -21,8 +23,8 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 	};
 
 	api.refreshAndGetToken = function() {
+		console.log('adamaTokenService.refreshAndGetToken');
 		var token = ionicUser.get('access_token');
-		var refreshToken = ionicUser.get('refresh_token');
 		if (!token) {
 			// FIXME should not occur as ionicUser should always have a
 			// access_token
@@ -30,6 +32,9 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 			$state.go('auth.signin');
 			return $q.reject('refreshAndGetToken : no token');
 		}
+		console.log('adamaTokenService.refreshAndGetToken token', token);
+		var refreshToken = ionicUser.get('refresh_token');
+		console.log('adamaTokenService.refreshAndGetToken refreshToken', refreshToken);
 		return $http({
 			method: 'POST',
 			url: adamaConstant.apiBase + 'login/refresh',
@@ -41,6 +46,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 			}
 		}).then(function(response) {
 			var newToken = response.data;
+			console.log('adamaTokenService.refreshAndGetToken newToken', newToken);
 			ionicUser.set('access_token', newToken);
 			return ionicUser.save().then(function() {
 				return newToken;

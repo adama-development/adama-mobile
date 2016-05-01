@@ -27,12 +27,8 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				console.error('error while reseting principal, no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
-				var token = ionicUser.get('access_token');
 				principalPromise = $http({
 					method: 'GET',
-					headers: {
-						'Authorization': 'Bearer ' + token
-					},
 					url: adamaConstant.apiBase + 'users/byLogin/' + externalId
 				}).then(function(response) {
 					var principal = response.data;
