@@ -1,9 +1,12 @@
 <ion-view hide-nav-bar="true">
 	<ion-content overflow-scroll="false" padding="true" scroll="true" class="background">
 		<div class="logo-placeholder"></div>
-		<hr />
-		{{ $ctrl.rejection }}
-		<hr />
+		<div style="color:white; background:orange">
+			REJECTION :
+			<hr />
+			{{ $ctrl.rejection }}
+			<hr />
+		</div>
  		<form
 			method="post"
 			name="signinForm"
