@@ -6,6 +6,7 @@ angular.module('adama-mobile').controller('SigninCtrl', function($rootScope, $st
 		authService.login(userName, userPassword).then(function() {
 			$state.go('app.main');
 		}).catch(function(rejection) {
+			ctrl.rejection = rejection;
 			console.error('error while signing in', rejection);
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({

@@ -1,10 +1,13 @@
 <ion-view hide-nav-bar="true">
 	<ion-content overflow-scroll="false" padding="true" scroll="true" class="background">
 		<div class="logo-placeholder"></div>
+		<hr />
+		{{ $ctrl.rejection }}
+		<hr />
  		<form
 			method="post"
 			name="signinForm"
-			ng-submit="ctrl.signin(userName, userPassword)"
+			ng-submit="$ctrl.signin(userName, userPassword)"
 			class="signin-form"
 		>
 			<label class="item item-input">

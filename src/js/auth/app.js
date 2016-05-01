@@ -15,7 +15,7 @@ angular.module('adama-mobile').config(function($stateProvider, adamaConstant) {
 			return adamaConstant.adamaMobileToolkitTemplateUrl.authSignin;
 		},
 		controller: 'SigninCtrl',
-		controllerAs: 'ctrl',
+		controllerAs: '$ctrl',
 		data: {
 			pageTitle: 'SIGNIN',
 			authorities: []
@@ -28,7 +28,7 @@ angular.module('adama-mobile').config(function($stateProvider, adamaConstant) {
 			return adamaConstant.adamaMobileToolkitTemplateUrl.authRecover;
 		},
 		controller: 'RecoverPasswordCtrl',
-		controllerAs: 'ctrl',
+		controllerAs: '$ctrl',
 		data: {
 			pageTitle: 'RECOVER',
 			authorities: []
@@ -41,7 +41,7 @@ angular.module('adama-mobile').config(function($stateProvider, adamaConstant) {
 			return adamaConstant.adamaMobileToolkitTemplateUrl.authAccessDenied;
 		},
 		controller: 'AccessDeniedCtrl',
-		controllerAs: 'ctrl',
+		controllerAs: '$ctrl',
 		data: {
 			pageTitle: 'ACCESS_DENIED',
 			authorities: []
