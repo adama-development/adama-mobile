@@ -36,7 +36,7 @@ Multiple demo are available :
 
 Before release, don't forget to do a full build in order to validate all code base !
 
-	gulp clean css js --type production
+	gulp clean build --type production
 
 The release process tag the source control and update project version :
 

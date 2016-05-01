@@ -144,3 +144,5 @@ gulp.task('serve', [ 'ionic.io', 'js', 'css' ], function() {
 });
 
 gulp.task('default', [ 'serve' ]);
+
+gulp.task('build', [ 'js', 'css' ]);
