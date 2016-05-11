@@ -2,7 +2,6 @@
 
 angular.module('adama-mobile').constant('adamaConstant', {
 	apiBase: 'http://localhost:13337/',
-	appModule: 'mySuperApp',
 	adamaMobileToolkitTemplateUrl: {
 		app: 'adama-mobile/app.html',
 		authAccessDenied: 'adama-mobile/auth/accessDenied.html',

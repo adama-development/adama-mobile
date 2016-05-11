@@ -19,12 +19,12 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', function($injec
 
 	return {
 		responseError: function(response) {
-			console.log('adamaTokenService.authExpiredInterceptor');
+			console.log('authExpiredInterceptor');
 			var config = response.config;
 			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				console.log('adamaTokenService.authExpiredInterceptor error 401, refresh token');
+				console.log('authExpiredInterceptor error 401, refresh token');
 				return getAdamaTokenService().refreshAndGetToken().then(function() {
-					console.log('adamaTokenService.authExpiredInterceptor token is refresh, reset Authorization header');
+					console.log('authExpiredInterceptor token is refresh, reset Authorization header');
 					config.headers['Authorization'] = undefined;
 					return getHttpService()(config);
 				});
