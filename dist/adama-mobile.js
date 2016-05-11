@@ -188,7 +188,7 @@ angular.module('adama-mobile').config(["$stateProvider", "adamaConstant", functi
 			return adamaConstant.adamaMobileToolkitTemplateUrl.authSignin;
 		},
 		controller: 'SigninCtrl',
-		controllerAs: 'ctrl',
+		controllerAs: '$ctrl',
 		data: {
 			pageTitle: 'SIGNIN',
 			authorities: []
@@ -201,7 +201,7 @@ angular.module('adama-mobile').config(["$stateProvider", "adamaConstant", functi
 			return adamaConstant.adamaMobileToolkitTemplateUrl.authRecover;
 		},
 		controller: 'RecoverPasswordCtrl',
-		controllerAs: 'ctrl',
+		controllerAs: '$ctrl',
 		data: {
 			pageTitle: 'RECOVER',
 			authorities: []
@@ -214,7 +214,7 @@ angular.module('adama-mobile').config(["$stateProvider", "adamaConstant", functi
 			return adamaConstant.adamaMobileToolkitTemplateUrl.authAccessDenied;
 		},
 		controller: 'AccessDeniedCtrl',
-		controllerAs: 'ctrl',
+		controllerAs: '$ctrl',
 		data: {
 			pageTitle: 'ACCESS_DENIED',
 			authorities: []
@@ -313,6 +313,7 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 		authService.login(userName, userPassword).then(function() {
 			$state.go('app.main');
 		}).catch(function(rejection) {
+			ctrl.rejection = rejection;
 			console.error('error while signing in', rejection);
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
@@ -322,6 +323,31 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 		});
 	};
 }]);
+
+'use strict';
+
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
 
 'use strict';
 
@@ -384,31 +410,8 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 	};
 }]);
 
-'use strict';
-
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
-
+/*jshint -W069 */
+/*jscs:disable requireDotNotation*/
 'use strict';
 
 angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "$q", "adamaConstant", function($injector, $q, adamaConstant) {
@@ -428,9 +431,13 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "
 
 	return {
 		responseError: function(response) {
+			console.log('adamaTokenService.authExpiredInterceptor');
 			var config = response.config;
 			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
+				console.log('adamaTokenService.authExpiredInterceptor error 401, refresh token');
 				return getAdamaTokenService().refreshAndGetToken().then(function() {
+					console.log('adamaTokenService.authExpiredInterceptor token is refresh, reset Authorization header');
+					config.headers['Authorization'] = undefined;
 					return getHttpService()(config);
 				});
 			}
@@ -455,8 +462,11 @@ angular.module('adama-mobile').factory('authInterceptor', ["$injector", "adamaCo
 		// Add authorization token to headers
 		request: function(config) {
 			config.headers = config.headers || {};
+			console.log('authInterceptor');
 			if (!config.headers['Authorization'] && config.url.indexOf(adamaConstant.apiBase) === 0) {
+				console.log('authInterceptor need authorization, getting token');
 				return getAdamaTokenService().getToken().then(function(token) {
+					console.log('authInterceptor adding Authorization header', token);
 					if (token) {
 						config.headers['Authorization'] = 'Bearer ' + token;
 					}
@@ -794,11 +804,13 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	});
 
 	api.getToken = function() {
-		console.log('getToken');
+		console.log('adamaTokenService.getToken');
 		var token;
 		if (ionicUser.isAuthenticated()) {
+			console.log('adamaTokenService.getToken user is uthenticated');
 			token = ionicUser.get('access_token');
 			if (jwtHelper.isTokenExpired(token)) {
+				console.log('adamaTokenService.getToken token is expired');
 				return api.refreshAndGetToken();
 			}
 		}
@@ -806,9 +818,8 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	};
 
 	api.refreshAndGetToken = function() {
-		var ionicUser = $ionicUser.current();
+		console.log('adamaTokenService.refreshAndGetToken');
 		var token = ionicUser.get('access_token');
-		var refreshToken = ionicUser.get('refresh_token');
 		if (!token) {
 			// FIXME should not occur as ionicUser should always have a
 			// access_token
@@ -816,8 +827,9 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			$state.go('auth.signin');
 			return $q.reject('refreshAndGetToken : no token');
 		}
-		console.log('refreshAndGetToken : token' + token);
-		console.log('refreshAndGetToken : refreshToken' + refreshToken);
+		console.log('adamaTokenService.refreshAndGetToken token', token);
+		var refreshToken = ionicUser.get('refresh_token');
+		console.log('adamaTokenService.refreshAndGetToken refreshToken', refreshToken);
 		return $http({
 			method: 'POST',
 			url: adamaConstant.apiBase + 'login/refresh',
@@ -829,6 +841,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			}
 		}).then(function(response) {
 			var newToken = response.data;
+			console.log('adamaTokenService.refreshAndGetToken newToken', newToken);
 			ionicUser.set('access_token', newToken);
 			return ionicUser.save().then(function() {
 				return newToken;
@@ -1035,12 +1048,8 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 				console.error('error while reseting principal, no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
-				var token = ionicUser.get('access_token');
 				principalPromise = $http({
 					method: 'GET',
-					headers: {
-						'Authorization': 'Bearer ' + token
-					},
 					url: adamaConstant.apiBase + 'users/byLogin/' + externalId
 				}).then(function(response) {
 					var principal = response.data;
