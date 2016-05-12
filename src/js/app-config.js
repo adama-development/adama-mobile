@@ -22,7 +22,11 @@ angular.module('adama-mobile').run(function($ionicPlatform) {
 });
 
 angular.module('adama-mobile').config(function($urlRouterProvider) {
-	$urlRouterProvider.otherwise('/app/');
+	// see https://github.com/angular-ui/ui-router/issues/600#issuecomment-47228922
+	$urlRouterProvider.otherwise(function($injector) {
+		var $state = $injector.get('$state');
+		$state.go('app.main');
+	});
 });
 
 angular.module('adama-mobile').config(function($translateProvider) {
