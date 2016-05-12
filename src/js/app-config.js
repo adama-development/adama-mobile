@@ -137,7 +137,7 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 				$ionicPush.unregister();
 			}
 		});
-		$rootScope.$on('principal-new', function() {
+		$rootScope.$on('ionicuser-new', function() {
 			$ionicPush.register(function(data) {
 				console.log('register after signing in ok', data);
 			});

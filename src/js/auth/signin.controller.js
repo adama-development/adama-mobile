@@ -4,6 +4,7 @@ angular.module('adama-mobile').controller('SigninCtrl', function($rootScope, $st
 	var ctrl = this;
 	ctrl.signin = function(userName, userPassword) {
 		authService.login(userName, userPassword).then(function() {
+			console.log('user is logged in in both ionic and backend, rediret to app.main');
 			$state.go('app.main');
 		}).catch(function(rejection) {
 			ctrl.rejection = rejection;

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('adama-mobile').factory('authService', function($http, $ionicAuth, adamaConstant, principalService) {
+angular.module('adama-mobile').factory('authService', function($rootScope, $http, $ionicAuth, adamaConstant, principalService) {
 	var api = {};
 
 	api.login = function(username, password) {
@@ -22,7 +22,8 @@ angular.module('adama-mobile').factory('authService', function($http, $ionicAuth
 				}
 			});
 		}).then(function() {
-			console.log('refreshing custom auth server is ok, ask ionic for the updateduser info');
+			console.log('refreshing custom auth server is ok, ask the backend for the updated user info');
+			$rootScope.$broadcast('ionicuser-new');
 			// get the new user information from ionic
 			return principalService.resetPrincipal();
 		});

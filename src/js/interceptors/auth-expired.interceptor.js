@@ -19,10 +19,9 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', function($injec
 
 	return {
 		responseError: function(response) {
-			console.log('authExpiredInterceptor');
 			var config = response.config;
 			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				console.log('authExpiredInterceptor error 401, refresh token');
+				console.log('authExpiredInterceptor error 401, refresh token', config.url);
 				return getAdamaTokenService().refreshAndGetToken().then(function() {
 					console.log('authExpiredInterceptor token is refresh, reset Authorization header');
 					config.headers['Authorization'] = undefined;

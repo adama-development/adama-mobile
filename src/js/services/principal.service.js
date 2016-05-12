@@ -33,7 +33,6 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				}).then(function(response) {
 					var principal = response.data;
 					isAuthenticated = true;
-					ionicUser = $ionicUser.current();
 					$rootScope.$broadcast('principal-new', {
 						principal: principal
 					});

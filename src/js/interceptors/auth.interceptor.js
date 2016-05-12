@@ -13,7 +13,7 @@ angular.module('adama-mobile').factory('authInterceptor', function($injector, ad
 	return {
 		// Add authorization token to headers
 		request: function(config) {
-			console.log('authInterceptor');
+			console.log('authInterceptor', config.url);
 			config.headers = config.headers || {};
 			if (!config.headers['Authorization'] && config.url.indexOf(adamaConstant.apiBase) === 0) {
 				console.log('authInterceptor need authorization, getting token');

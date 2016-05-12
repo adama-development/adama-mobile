@@ -1,10 +1,14 @@
+/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+/* jshint camelcase:false */
+
 'use strict';
 
 angular.module('adama-mobile').factory('adamaTokenService', function($rootScope, $http, $q, $state, $ionicUser, jwtHelper, adamaConstant) {
 	var api = {};
 
 	var ionicUser = $ionicUser.current();
-	$rootScope.$on('principal-new', function() {
+	$rootScope.$on('ionicuser-new', function() {
+		console.log('adamaTokenService update ionicUser');
 		ionicUser = $ionicUser.current();
 	});
 
@@ -12,7 +16,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 		console.log('adamaTokenService.getToken');
 		var token;
 		if (ionicUser.isAuthenticated()) {
-			console.log('adamaTokenService.getToken user is uthenticated');
+			console.log('adamaTokenService.getToken user is authenticated');
 			token = ionicUser.get('access_token');
 			if (jwtHelper.isTokenExpired(token)) {
 				console.log('adamaTokenService.getToken token is expired');
@@ -45,7 +49,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 				'refresh_token': refreshToken
 			}
 		}).then(function(response) {
-			var newToken = response.data;
+			var newToken = response.data.access_token;
 			console.log('adamaTokenService.refreshAndGetToken newToken', newToken);
 			ionicUser.set('access_token', newToken);
 			return ionicUser.save().then(function() {
