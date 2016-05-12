@@ -19,12 +19,15 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		var result;
 		ionicUser = $ionicUser.current();
 		isAuthenticated = ionicUser.isAuthenticated();
+		console.log('resetPrincipal');
+		console.log('resetPrincipal ionicUser', ionicUser);
+		console.log('resetPrincipal isAuthenticated', isAuthenticated);
 		if (isAuthenticated) {
 			var externalId = ionicUser.details['external_id'];
 			if (!externalId) {
 				// FIXME should not occur, every ionicuser should have an
 				// external_id
-				console.error('error while reseting principal, no external_id, redirect to signin');
+				console.error('no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
 				principalPromise = $http({
@@ -71,10 +74,11 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 			// }
 			// }
 		} else {
-			console.error('error while reseting principal, not authenticated, redirect to signin');
+			console.error('user is not authenticated');
 			result = $q.reject('resetPrincipal : not authenticated');
 		}
 		return result.catch(function(rejection) {
+			console.log('there was a problem while reseting user info, redirect to signin');
 			isAuthenticated = false;
 			principalPromise = undefined;
 			$state.go('auth.signin');
