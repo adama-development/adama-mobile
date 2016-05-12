@@ -36,9 +36,17 @@
 			<button
 				type="submit"
 				class="button button-assertive button-block"
-				ng-disabled="signinForm.$invalid"
-				translate
-			>SIGNIN_SUBMIT</button>
+				ng-disabled="signinForm.$invalid || $ctrl.loading"
+			>
+				<span
+					ng-if="!$ctrl.loading"
+					translate
+				>SIGNIN_SUBMIT</span>
+				<span
+					ng-if="$ctrl.loading"
+					translate
+				>SIGNIN_LOADING</span>
+			</button>
 		</form>
 		<div class="signin-addon-actions">
 			<a
