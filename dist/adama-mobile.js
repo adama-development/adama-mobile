@@ -421,20 +421,6 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 	};
 }]);
 
-'use strict';
-
-angular.module('adama-mobile').factory('User', ["$resource", "adamaConstant", "adamaResourceConfig", function($resource, adamaConstant, adamaResourceConfig) {
-	var config = angular.extend({}, adamaResourceConfig, {
-		'delete': {
-			method: 'DELETE',
-			params: {
-				login: '@login'
-			}
-		}
-	});
-	return $resource(adamaConstant.apiBase + 'users/:login', {}, config);
-}]);
-
 /*jshint -W069 */
 /*jscs:disable requireDotNotation*/
 'use strict';
@@ -500,6 +486,20 @@ angular.module('adama-mobile').factory('authInterceptor', ["$injector", "adamaCo
 			return config;
 		}
 	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('User', ["$resource", "adamaConstant", "adamaResourceConfig", function($resource, adamaConstant, adamaResourceConfig) {
+	var config = angular.extend({}, adamaResourceConfig, {
+		'delete': {
+			method: 'DELETE',
+			params: {
+				login: '@login'
+			}
+		}
+	});
+	return $resource(adamaConstant.apiBase + 'users/:login', {}, config);
 }]);
 
 'use strict';
@@ -748,8 +748,8 @@ angular.module('adama-mobile').factory('pageTitle', ["$rootScope", "$filter", fu
 	var translateFn = $filter('translate');
 	var api = {};
 
-	api.set = function(pageTitleKey) {
-		var newTitle = translateFn(pageTitleKey);
+	api.set = function(pageTitleKey, data) {
+		var newTitle = translateFn(pageTitleKey, data);
 		$rootScope.pageTitle = newTitle;
 	};
 
