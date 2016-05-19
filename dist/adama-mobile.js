@@ -319,46 +319,21 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 	ctrl.signin = function(userName, userPassword) {
 		ctrl.loading = true;
 		authService.login(userName, userPassword).then(function() {
-			console.log('user is logged in in both ionic and backend, rediret to app.main');
+			console.log('user is logged, rediret to app.main');
 			$state.go('app.main');
+			ctrl.loading = false;
 		}).catch(function(rejection) {
-			ctrl.rejection = rejection;
 			console.error('error while signing in', rejection);
+			ctrl.rejection = rejection;
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
 				title: translateFn('SIGNIN_ERROR_TITLE'),
 				template: translateFn('SIGNIN_ERROR_MESSAGE')
 			});
-		}).finally(function() {
 			ctrl.loading = false;
 		});
 	};
 }]);
-
-'use strict';
-
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
 
 'use strict';
 
@@ -421,6 +396,31 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 	};
 }]);
 
+'use strict';
+
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
+
 /*jshint -W069 */
 /*jscs:disable requireDotNotation*/
 'use strict';
@@ -440,6 +440,13 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "
 		};
 	}());
 
+	var getStateService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('$state'));
+		};
+	}());
+
 	return {
 		responseError: function(response) {
 			var config = response.config;
@@ -449,6 +456,11 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "
 					console.log('authExpiredInterceptor token is refresh, reset Authorization header');
 					config.headers['Authorization'] = undefined;
 					return getHttpService()(config);
+				}, function(rejection) {
+					return getStateService().go('auth.signin').then(function() {
+						console.log('authExpiredInterceptor error while getting user token', rejection);
+						return $q.reject(rejection);
+					});
 				});
 			}
 			return $q.reject(response);
@@ -460,11 +472,18 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('authInterceptor', ["$injector", "adamaConstant", function($injector, adamaConstant) {
+angular.module('adama-mobile').factory('authInterceptor', ["$injector", "$q", "adamaConstant", function($injector, $q, adamaConstant) {
 	var getAdamaTokenService = (function() {
 		var service;
 		return function() {
 			return service || (service = $injector.get('adamaTokenService'));
+		};
+	}());
+
+	var getStateService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('$state'));
 		};
 	}());
 
@@ -481,6 +500,11 @@ angular.module('adama-mobile').factory('authInterceptor', ["$injector", "adamaCo
 						config.headers['Authorization'] = 'Bearer ' + token;
 					}
 					return config;
+				}, function(rejection) {
+					return getStateService().go('auth.signin').then(function() {
+						console.log('authInterceptor error while getting user token', rejection);
+						return $q.reject(rejection);
+					});
 				});
 			}
 			return config;
@@ -495,11 +519,11 @@ angular.module('adama-mobile').factory('User', ["$resource", "adamaConstant", "a
 		'delete': {
 			method: 'DELETE',
 			params: {
-				login: '@login'
+				id: '@id'
 			}
 		}
 	});
-	return $resource(adamaConstant.apiBase + 'users/:login', {}, config);
+	return $resource(adamaConstant.apiBase + 'users/:id', {}, config);
 }]);
 
 'use strict';
@@ -564,7 +588,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 		if (ionicUser.isAuthenticated()) {
 			console.log('adamaTokenService.getToken user is authenticated');
 			token = ionicUser.get('access_token');
-			if (jwtHelper.isTokenExpired(token)) {
+			if (token && jwtHelper.isTokenExpired(token)) {
 				console.log('adamaTokenService.getToken token is expired');
 				return api.refreshAndGetToken();
 			}
@@ -579,8 +603,10 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			// FIXME should not occur as ionicUser should always have a
 			// access_token
 			console.error('no token, redirect to signin');
-			$state.go('auth.signin');
-			return $q.reject('refreshAndGetToken : no token');
+			console.log('for debugging purpose, here is the ionic current user', ionicUser);
+			console.log('for debugging purpose, here is the ionic current user.isAuthenticated', ionicUser.isAuthenticated());
+			console.log('for debugging purpose, here is a JSON.stringify version of ionic current user', JSON.stringify(ionicUser));
+			return $q.reject('refreshAndGetToken : no token !!!!');
 		}
 		console.log('adamaTokenService.refreshAndGetToken token', token);
 		var refreshToken = ionicUser.get('refresh_token');
@@ -603,7 +629,6 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			});
 		}, function(rejection) {
 			console.error('error while refreshing user token, redirect to signin', rejection);
-			$state.go('auth.signin');
 			return $q.reject(rejection);
 		});
 	};
@@ -654,6 +679,9 @@ angular.module('adama-mobile').factory('authService', ["$rootScope", "$http", "$
 			$rootScope.$broadcast('ionicuser-new');
 			// get the new user information from ionic
 			return principalService.resetPrincipal();
+		}).then(function() {
+			console.log('user is logged in in both ionic and backend');
+			$rootScope.$broadcast('principal-new');
 		});
 	};
 
@@ -835,36 +863,6 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 				});
 				result = principalPromise;
 			}
-			// if (!externalId) {
-			// // FIXME external_id should be in details, not directly into
-			// ionicUser
-			// externalId = ionicUser['external_id'];
-			// }
-			// if (!externalId) {
-			// // FIXME should not occur, every ionicuser should have an
-			// external_id
-			// principalPromise = $q.reject('not logged');
-			// } else {
-			// var token = ionicUser.get('access_token');
-			// if (!token) {
-			// principalPromise = $http({
-			// method: 'GET',
-			// headers: {
-			// 'Authorization': 'Bearer ' + token
-			// },
-			// url: adamaConstant.apiBase + 'users/byLogin/' + externalId
-			// }).then(function(response) {
-			// var principal = response.data;
-			// isAuthenticated = true;
-			// $rootScope.$broadcast('principal-new', {
-			// principal: principal
-			// });
-			// return principal;
-			// });
-			// } else {
-			// principalPromise = $q.reject('not logged');
-			// }
-			// }
 		} else {
 			console.error('user is not authenticated');
 			result = $q.reject('resetPrincipal : not authenticated');
