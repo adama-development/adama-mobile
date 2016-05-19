@@ -26,6 +26,9 @@ angular.module('adama-mobile').factory('authService', function($rootScope, $http
 			$rootScope.$broadcast('ionicuser-new');
 			// get the new user information from ionic
 			return principalService.resetPrincipal();
+		}).then(function() {
+			console.log('user is logged in in both ionic and backend');
+			$rootScope.$broadcast('principal-new');
 		});
 	};
 

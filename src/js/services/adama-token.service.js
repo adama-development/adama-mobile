@@ -18,7 +18,7 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 		if (ionicUser.isAuthenticated()) {
 			console.log('adamaTokenService.getToken user is authenticated');
 			token = ionicUser.get('access_token');
-			if (jwtHelper.isTokenExpired(token)) {
+			if (token && jwtHelper.isTokenExpired(token)) {
 				console.log('adamaTokenService.getToken token is expired');
 				return api.refreshAndGetToken();
 			}
@@ -33,8 +33,10 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 			// FIXME should not occur as ionicUser should always have a
 			// access_token
 			console.error('no token, redirect to signin');
-			$state.go('auth.signin');
-			return $q.reject('refreshAndGetToken : no token');
+			console.log('for debugging purpose, here is the ionic current user', ionicUser);
+			console.log('for debugging purpose, here is the ionic current user.isAuthenticated', ionicUser.isAuthenticated());
+			console.log('for debugging purpose, here is a JSON.stringify version of ionic current user', JSON.stringify(ionicUser));
+			return $q.reject('refreshAndGetToken : no token !!!!');
 		}
 		console.log('adamaTokenService.refreshAndGetToken token', token);
 		var refreshToken = ionicUser.get('refresh_token');
@@ -57,7 +59,6 @@ angular.module('adama-mobile').factory('adamaTokenService', function($rootScope,
 			});
 		}, function(rejection) {
 			console.error('error while refreshing user token, redirect to signin', rejection);
-			$state.go('auth.signin');
 			return $q.reject(rejection);
 		});
 	};

@@ -17,6 +17,13 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', function($injec
 		};
 	}());
 
+	var getStateService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('$state'));
+		};
+	}());
+
 	return {
 		responseError: function(response) {
 			var config = response.config;
@@ -26,6 +33,11 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', function($injec
 					console.log('authExpiredInterceptor token is refresh, reset Authorization header');
 					config.headers['Authorization'] = undefined;
 					return getHttpService()(config);
+				}, function(rejection) {
+					return getStateService().go('auth.signin').then(function() {
+						console.log('authExpiredInterceptor error while getting user token', rejection);
+						return $q.reject(rejection);
+					});
 				});
 			}
 			return $q.reject(response);

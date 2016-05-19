@@ -5,9 +5,9 @@ angular.module('adama-mobile').factory('User', function($resource, adamaConstant
 		'delete': {
 			method: 'DELETE',
 			params: {
-				login: '@login'
+				id: '@id'
 			}
 		}
 	});
-	return $resource(adamaConstant.apiBase + 'users/:login', {}, config);
+	return $resource(adamaConstant.apiBase + 'users/:id', {}, config);
 });

@@ -43,36 +43,6 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				});
 				result = principalPromise;
 			}
-			// if (!externalId) {
-			// // FIXME external_id should be in details, not directly into
-			// ionicUser
-			// externalId = ionicUser['external_id'];
-			// }
-			// if (!externalId) {
-			// // FIXME should not occur, every ionicuser should have an
-			// external_id
-			// principalPromise = $q.reject('not logged');
-			// } else {
-			// var token = ionicUser.get('access_token');
-			// if (!token) {
-			// principalPromise = $http({
-			// method: 'GET',
-			// headers: {
-			// 'Authorization': 'Bearer ' + token
-			// },
-			// url: adamaConstant.apiBase + 'users/byLogin/' + externalId
-			// }).then(function(response) {
-			// var principal = response.data;
-			// isAuthenticated = true;
-			// $rootScope.$broadcast('principal-new', {
-			// principal: principal
-			// });
-			// return principal;
-			// });
-			// } else {
-			// principalPromise = $q.reject('not logged');
-			// }
-			// }
 		} else {
 			console.error('user is not authenticated');
 			result = $q.reject('resetPrincipal : not authenticated');

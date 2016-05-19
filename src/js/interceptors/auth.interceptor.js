@@ -2,11 +2,18 @@
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('authInterceptor', function($injector, adamaConstant) {
+angular.module('adama-mobile').factory('authInterceptor', function($injector, $q, adamaConstant) {
 	var getAdamaTokenService = (function() {
 		var service;
 		return function() {
 			return service || (service = $injector.get('adamaTokenService'));
+		};
+	}());
+
+	var getStateService = (function() {
+		var service;
+		return function() {
+			return service || (service = $injector.get('$state'));
 		};
 	}());
 
@@ -23,6 +30,11 @@ angular.module('adama-mobile').factory('authInterceptor', function($injector, ad
 						config.headers['Authorization'] = 'Bearer ' + token;
 					}
 					return config;
+				}, function(rejection) {
+					return getStateService().go('auth.signin').then(function() {
+						console.log('authInterceptor error while getting user token', rejection);
+						return $q.reject(rejection);
+					});
 				});
 			}
 			return config;
