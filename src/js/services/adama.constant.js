@@ -10,5 +10,5 @@ angular.module('adama-mobile').constant('adamaConstant', {
 	},
 	enableBadge: false,
 	enablePush: false,
-	urlResetPassword: 'path/to/reset/password?isMobile=true'
+	urlResetPassword: 'path/to/reset/password?origin=mobile'
 });
