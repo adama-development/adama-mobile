@@ -337,6 +337,31 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 
 'use strict';
 
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
+
+'use strict';
+
 angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
 	return {
 		scope: false,
@@ -395,31 +420,6 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 		}
 	};
 }]);
-
-'use strict';
-
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
 
 /*jshint -W069 */
 /*jscs:disable requireDotNotation*/
@@ -648,7 +648,7 @@ angular.module('adama-mobile').constant('adamaConstant', {
 	},
 	enableBadge: false,
 	enablePush: false,
-	urlResetPassword: 'path/to/reset/password?isMobile=true'
+	urlResetPassword: 'path/to/reset/password?origin=mobile'
 });
 
 'use strict';
