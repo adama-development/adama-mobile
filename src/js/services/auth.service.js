@@ -28,7 +28,6 @@ angular.module('adama-mobile').factory('authService', function($rootScope, $http
 			return principalService.resetPrincipal();
 		}).then(function() {
 			console.log('user is logged in in both ionic and backend');
-			$rootScope.$broadcast('principal-new');
 		});
 	};
 
