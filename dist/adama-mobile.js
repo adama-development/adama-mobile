@@ -153,6 +153,7 @@ angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", 
 			if ($ionicUser.current().isAuthenticated()) {
 				$ionicPush.register(function(data) {
 					console.log('register at startup ok', data);
+					$ionicPush.saveToken(data);
 				});
 			} else {
 				$ionicPush.unregister();
@@ -681,7 +682,6 @@ angular.module('adama-mobile').factory('authService', ["$rootScope", "$http", "$
 			return principalService.resetPrincipal();
 		}).then(function() {
 			console.log('user is logged in in both ionic and backend');
-			$rootScope.$broadcast('principal-new');
 		});
 	};
 
