@@ -136,6 +136,7 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 			if ($ionicUser.current().isAuthenticated()) {
 				$ionicPush.register(function(data) {
 					console.log('register at startup ok', data);
+					$ionicPush.saveToken(data);
 				});
 			} else {
 				$ionicPush.unregister();
