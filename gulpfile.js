@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var plugins = require('gulp-load-plugins')();
 var clean = require('gulp-clean');
 var browserSync = require('browser-sync').create();
 var jshint = require('gulp-jshint');
@@ -17,6 +16,8 @@ var templateCache = require('gulp-angular-templatecache');
 var sass = require('gulp-sass');
 var sassLint = require('gulp-sass-lint');
 var replace = require('gulp-replace');
+var notify = require('gulp-notify');
+var plumber = require('gulp-plumber');
 
 require('gulp-release-tasks')(gulp);
 
@@ -26,7 +27,7 @@ var config = {
 };
 
 var onError = function(err) {
-	plugins.notify.onError({
+	notify.onError({
 		title : 'Gulp',
 		subtitle : 'Failure!',
 		message : 'Error: <%= error.message %>',
@@ -43,7 +44,7 @@ gulp.task('clean', function() {
 
 gulp.task('js', function() {
 	var jsPipe = gulp.src([ config.mainPath + 'js/app.js', config.mainPath + 'js/**/*.js' ]) //
-	.pipe(plugins.plumber({
+	.pipe(plumber({
 		errorHandler : onError
 	})) //
 	.pipe(jshint()) //
@@ -83,7 +84,7 @@ gulp.task('js', function() {
 
 gulp.task('css', function() {
 	var cssPipe = gulp.src([ config.mainPath + 'scss/main.scss' ]) //
-	.pipe(plugins.plumber({
+	.pipe(plumber({
 		errorHandler : onError
 	})) //
 	.pipe(sassLint()) //
