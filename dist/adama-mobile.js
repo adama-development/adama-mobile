@@ -338,6 +338,31 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 
 'use strict';
 
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
+
+'use strict';
+
 angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
 	return {
 		scope: false,
@@ -396,31 +421,6 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 		}
 	};
 }]);
-
-'use strict';
-
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
 
 /*jshint -W069 */
 /*jscs:disable requireDotNotation*/
@@ -769,6 +769,40 @@ angular.module('adama-mobile').provider('language', function() {
 		return api;
 	}];
 });
+
+'use strict';
+
+angular.module('adama-mobile').factory('loadingService', ["$filter", "$ionicLoading", function($filter, $ionicLoading) {
+	var api = {};
+	var translateFn = $filter('translate');
+
+	api.blockUiWhileResolving = function(messageKey, promise) {
+		if (promise.$$state.status === 0) {
+			$ionicLoading.show({
+				template: translateFn(messageKey)
+			});
+		}
+		return promise.finally(function() {
+			$ionicLoading.hide();
+		});
+	};
+
+	return api;
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').factory('notificationsService', ["$filter", "$cordovaToast", function($filter, $cordovaToast) {
+	var api = {};
+	var translateFn = $filter('translate');
+
+	api.show = function(messageKey) {
+		console.log('notifications show', messageKey);
+		return $cordovaToast.show(translateFn(messageKey), 'short', 'bottom');
+	};
+
+	return api;
+}]);
 
 'use strict';
 
