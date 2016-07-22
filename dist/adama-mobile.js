@@ -12,6 +12,7 @@ angular.module('adama-mobile', [ //
 	'LocalStorageModule', //
 	'ngCordova', //
 	'angular-jwt', //
+	'angular-logger', //
 	'ngMessages' //
 ]);
 
@@ -120,7 +121,8 @@ angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", 
 	}
 }]);
 
-angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", function($rootScope, $injector, adamaConstant) {
+angular.module('adama-mobile').run(["$rootScope", "$injector", "$log", "adamaConstant", function($rootScope, $injector, $log, adamaConstant) {
+	var log = $log.getInstance('adama-mobile.run.push');
 	var $ionicPlatform, $ionicPush, $ionicUser;
 	if (adamaConstant.enablePush) {
 		$ionicPlatform = $injector.get('$ionicPlatform');
@@ -133,17 +135,17 @@ angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", 
 					$rootScope.$apply(function() {
 						// TODO notification management
 						var payload = $ionicPush.getPayload(notification);
-						console.log('notification, payload', notification, payload);
+						log.debug('notification, payload', notification, payload);
 						$rootScope.notification = notification;
 						$rootScope.payload = payload;
 						if (notification.app.asleep || notification.app.closed) {
 							// $state.go('tab.push');
-							console.log('application was asleep or closed');
+							log.debug('application was asleep or closed');
 						}
 					});
 				},
 				onRegister: function(data) {
-					console.log('Device token', data.token);
+					log.debug('Device token', data.token);
 				},
 				canShowAlert: false,
 				canSetBadge: true,
@@ -152,7 +154,7 @@ angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", 
 			});
 			if ($ionicUser.current().isAuthenticated()) {
 				$ionicPush.register(function(data) {
-					console.log('register at startup ok', data);
+					log.debug('register at startup ok', data);
 					$ionicPush.saveToken(data);
 				});
 			} else {
@@ -161,13 +163,21 @@ angular.module('adama-mobile').run(["$rootScope", "$injector", "adamaConstant", 
 		});
 		$rootScope.$on('ionicuser-new', function() {
 			$ionicPush.register(function(data) {
-				console.log('register after signing in ok', data);
+				log.debug('register after signing in ok', data);
 			});
 		});
 		$rootScope.$on('principal-remove', function() {
 			$ionicPush.unregister();
 		});
 	}
+}]);
+
+angular.module('adama-mobile').config(["logEnhancerProvider", function(logEnhancerProvider) {
+	logEnhancerProvider.prefixPattern = '%s::[%s]>';
+	logEnhancerProvider.datetimePattern = 'DD/MM/YYYY HH:mm:ss';
+	logEnhancerProvider.logLevels = {
+		'*': logEnhancerProvider.LEVEL.OFF
+	};
 }]);
 
 'use strict';
@@ -314,17 +324,18 @@ angular.module('adama-mobile').controller('RecoverPasswordCtrl', ["$filter", "$i
 
 'use strict';
 
-angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state", "authService", "$filter", "$ionicPopup", function($rootScope, $state, authService, $filter, $ionicPopup) {
+angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state", "$log", "authService", "$filter", "$ionicPopup", function($rootScope, $state, $log, authService, $filter, $ionicPopup) {
+	var log = $log.getInstance('adama-mobile.auth.signin');
 	var ctrl = this;
 	ctrl.loading = false;
 	ctrl.signin = function(userName, userPassword) {
 		ctrl.loading = true;
 		authService.login(userName, userPassword).then(function() {
-			console.log('user is logged, rediret to app.main');
+			log.debug('user is logged, rediret to app.main');
 			$state.go('app.main');
 			ctrl.loading = false;
 		}).catch(function(rejection) {
-			console.error('error while signing in', rejection);
+			log.info('error while signing in', rejection);
 			ctrl.rejection = rejection;
 			var translateFn = $filter('translate');
 			$ionicPopup.alert({
@@ -426,7 +437,7 @@ angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "$q", "adamaConstant", function($injector, $q, adamaConstant) {
+angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "$q", "$log", "adamaConstant", function($injector, $q, $log, adamaConstant) {
 	var getHttpService = (function() {
 		var service;
 		return function() {
@@ -452,14 +463,15 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "
 		responseError: function(response) {
 			var config = response.config;
 			if (response.status === 401 && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				console.log('authExpiredInterceptor error 401, refresh token', config.url);
+				var log = $log.getInstance('adama-mobile.interceptors.authExpiredInterceptor');
+				log.debug('error 401, refresh token', config.url);
 				return getAdamaTokenService().refreshAndGetToken().then(function() {
-					console.log('authExpiredInterceptor token is refresh, reset Authorization header');
+					log.debug('token is refresh, reset Authorization header');
 					config.headers['Authorization'] = undefined;
 					return getHttpService()(config);
 				}, function(rejection) {
 					return getStateService().go('auth.signin').then(function() {
-						console.log('authExpiredInterceptor error while getting user token', rejection);
+						log.debug('error while getting user token', rejection);
 						return $q.reject(rejection);
 					});
 				});
@@ -473,7 +485,7 @@ angular.module('adama-mobile').factory('authExpiredInterceptor', ["$injector", "
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('authInterceptor', ["$injector", "$q", "adamaConstant", function($injector, $q, adamaConstant) {
+angular.module('adama-mobile').factory('authInterceptor', ["$injector", "$q", "$log", "adamaConstant", function($injector, $q, $log, adamaConstant) {
 	var getAdamaTokenService = (function() {
 		var service;
 		return function() {
@@ -491,19 +503,20 @@ angular.module('adama-mobile').factory('authInterceptor', ["$injector", "$q", "a
 	return {
 		// Add authorization token to headers
 		request: function(config) {
-			console.log('authInterceptor', config.url);
+			var log = $log.getInstance('adama-mobile.interceptors.authInterceptor');
+			log.debug('url', config.url);
 			config.headers = config.headers || {};
 			if (!config.headers['Authorization'] && config.url.indexOf(adamaConstant.apiBase) === 0) {
-				console.log('authInterceptor need authorization, getting token');
+				log.debug('need authorization, getting token');
 				return getAdamaTokenService().getToken().then(function(token) {
-					console.log('authInterceptor adding Authorization header', token);
+					log.debug('adding Authorization header', token);
 					if (token) {
 						config.headers['Authorization'] = 'Bearer ' + token;
 					}
 					return config;
 				}, function(rejection) {
 					return getStateService().go('auth.signin').then(function() {
-						console.log('authInterceptor error while getting user token', rejection);
+						log.debug('error while getting user token', rejection);
 						return $q.reject(rejection);
 					});
 				});
@@ -574,23 +587,24 @@ angular.module('adama-mobile').factory('adamaResourceConfig', ["ParseLinks", fun
 
 'use strict';
 
-angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$http", "$q", "$state", "$ionicUser", "jwtHelper", "adamaConstant", function($rootScope, $http, $q, $state, $ionicUser, jwtHelper, adamaConstant) {
+angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$http", "$q", "$state", "$ionicUser", "$log", "jwtHelper", "adamaConstant", function($rootScope, $http, $q, $state, $ionicUser, $log, jwtHelper, adamaConstant) {
+	var log = $log.getInstance('adama-mobile.services.adamaTokenService');
 	var api = {};
 
 	var ionicUser = $ionicUser.current();
 	$rootScope.$on('ionicuser-new', function() {
-		console.log('adamaTokenService update ionicUser');
+		log.debug('adamaTokenService update ionicUser');
 		ionicUser = $ionicUser.current();
 	});
 
 	api.getToken = function() {
-		console.log('adamaTokenService.getToken');
+		log.debug('adamaTokenService.getToken');
 		var token;
 		if (ionicUser.isAuthenticated()) {
-			console.log('adamaTokenService.getToken user is authenticated');
+			log.debug('adamaTokenService.getToken user is authenticated');
 			token = ionicUser.get('access_token');
 			if (token && jwtHelper.isTokenExpired(token)) {
-				console.log('adamaTokenService.getToken token is expired');
+				log.debug('adamaTokenService.getToken token is expired');
 				return api.refreshAndGetToken();
 			}
 		}
@@ -598,20 +612,20 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	};
 
 	api.refreshAndGetToken = function() {
-		console.log('adamaTokenService.refreshAndGetToken');
+		log.debug('adamaTokenService.refreshAndGetToken');
 		var token = ionicUser.get('access_token');
 		if (!token) {
 			// FIXME should not occur as ionicUser should always have a
 			// access_token
-			console.error('no token, redirect to signin');
-			console.log('for debugging purpose, here is the ionic current user', ionicUser);
-			console.log('for debugging purpose, here is the ionic current user.isAuthenticated', ionicUser.isAuthenticated());
-			console.log('for debugging purpose, here is a JSON.stringify version of ionic current user', JSON.stringify(ionicUser));
+			log.info('no token, redirect to signin');
+			log.debug('for debugging purpose, here is the ionic current user', ionicUser);
+			log.debug('for debugging purpose, here is the ionic current user.isAuthenticated', ionicUser.isAuthenticated());
+			log.debug('for debugging purpose, here is a JSON.stringify version of ionic current user', JSON.stringify(ionicUser));
 			return $q.reject('refreshAndGetToken : no token !!!!');
 		}
-		console.log('adamaTokenService.refreshAndGetToken token', token);
+		log.debug('adamaTokenService.refreshAndGetToken token', token);
 		var refreshToken = ionicUser.get('refresh_token');
-		console.log('adamaTokenService.refreshAndGetToken refreshToken', refreshToken);
+		log.debug('adamaTokenService.refreshAndGetToken refreshToken', refreshToken);
 		return $http({
 			method: 'POST',
 			url: adamaConstant.apiBase + 'login/refresh',
@@ -623,13 +637,13 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			}
 		}).then(function(response) {
 			var newToken = response.data.access_token;
-			console.log('adamaTokenService.refreshAndGetToken newToken', newToken);
+			log.debug('adamaTokenService.refreshAndGetToken newToken', newToken);
 			ionicUser.set('access_token', newToken);
 			return ionicUser.save().then(function() {
 				return newToken;
 			});
 		}, function(rejection) {
-			console.error('error while refreshing user token, redirect to signin', rejection);
+			log.info('error while refreshing user token, redirect to signin', rejection);
 			return $q.reject(rejection);
 		});
 	};
@@ -654,11 +668,12 @@ angular.module('adama-mobile').constant('adamaConstant', {
 
 'use strict';
 
-angular.module('adama-mobile').factory('authService', ["$rootScope", "$http", "$ionicAuth", "adamaConstant", "principalService", function($rootScope, $http, $ionicAuth, adamaConstant, principalService) {
+angular.module('adama-mobile').factory('authService', ["$rootScope", "$http", "$ionicAuth", "$log", "adamaConstant", "principalService", function($rootScope, $http, $ionicAuth, $log, adamaConstant, principalService) {
+	var log = $log.getInstance('adama-mobile.services.authService');
 	var api = {};
 
 	api.login = function(username, password) {
-		console.log('login', username);
+		log.debug('login', username);
 		var authOptions = {
 			remember: true
 		};
@@ -667,7 +682,7 @@ angular.module('adama-mobile').factory('authService', ["$rootScope", "$http", "$
 			password: password
 		};
 		return $ionicAuth.login('custom', authOptions, data).then(function() {
-			console.log('login is ok, ask custom auth server to refresh the user data');
+			log.debug('login is ok, ask custom auth server to refresh the user data');
 			return $http({
 				method: 'POST',
 				url: adamaConstant.apiBase + 'externalLogin/refreshUserExternal',
@@ -676,17 +691,17 @@ angular.module('adama-mobile').factory('authService', ["$rootScope", "$http", "$
 				}
 			});
 		}).then(function() {
-			console.log('refreshing custom auth server is ok, ask the backend for the updated user info');
+			log.debug('refreshing custom auth server is ok, ask the backend for the updated user info');
 			$rootScope.$broadcast('ionicuser-new');
 			// get the new user information from ionic
 			return principalService.resetPrincipal();
 		}).then(function() {
-			console.log('user is logged in in both ionic and backend');
+			log.debug('user is logged in in both ionic and backend');
 		});
 	};
 
 	api.logout = function() {
-		console.log('logout');
+		log.debug('logout');
 		$ionicAuth.logout();
 		principalService.deletePrincipal();
 	};
@@ -792,12 +807,13 @@ angular.module('adama-mobile').factory('loadingService', ["$filter", "$ionicLoad
 
 'use strict';
 
-angular.module('adama-mobile').factory('notificationsService', ["$filter", "$cordovaToast", function($filter, $cordovaToast) {
+angular.module('adama-mobile').factory('notificationsService', ["$filter", "$cordovaToast", "$log", function($filter, $cordovaToast, $log) {
+	var log = $log.getInstance('adama-mobile.services.notificationsService');
 	var api = {};
 	var translateFn = $filter('translate');
 
 	api.show = function(messageKey) {
-		console.log('notifications show', messageKey);
+		log.debug('notifications show', messageKey);
 		return $cordovaToast.show(translateFn(messageKey), 'short', 'bottom');
 	};
 
@@ -856,7 +872,8 @@ angular.module('adama-mobile').service('ParseLinks', function() {
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", "$http", "$resource", "$state", "$ionicUser", "adamaConstant", function($rootScope, $q, $http, $resource, $state, $ionicUser, adamaConstant) {
+angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", "$http", "$resource", "$state", "$ionicUser", "$log", "adamaConstant", function($rootScope, $q, $http, $resource, $state, $ionicUser, $log, adamaConstant) {
+	var log = $log.getInstance('adama-mobile.services.principalService');
 	var api = {};
 	var principalPromise;
 	var ionicUser = $ionicUser.current();
@@ -873,15 +890,15 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 		var result;
 		ionicUser = $ionicUser.current();
 		isAuthenticated = ionicUser.isAuthenticated();
-		console.log('resetPrincipal');
-		console.log('resetPrincipal ionicUser', ionicUser);
-		console.log('resetPrincipal isAuthenticated', isAuthenticated);
+		log.debug('resetPrincipal');
+		log.debug('resetPrincipal ionicUser', ionicUser);
+		log.debug('resetPrincipal isAuthenticated', isAuthenticated);
 		if (isAuthenticated) {
 			var externalId = ionicUser.details['external_id'];
 			if (!externalId) {
 				// FIXME should not occur, every ionicuser should have an
 				// external_id
-				console.error('no external_id, redirect to signin');
+				log.info('no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
 				principalPromise = $http({
@@ -898,11 +915,11 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 				result = principalPromise;
 			}
 		} else {
-			console.error('user is not authenticated');
+			log.info('user is not authenticated');
 			result = $q.reject('resetPrincipal : not authenticated');
 		}
 		return result.catch(function(rejection) {
-			console.log('there was a problem while reseting user info, redirect to signin');
+			log.debug('there was a problem while reseting user info, redirect to signin');
 			isAuthenticated = false;
 			principalPromise = undefined;
 			$state.go('auth.signin');
@@ -924,13 +941,13 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 	};
 
 	api.hasAnyAuthority = function(authorities) {
-		console.log('hasAnyAuthority', authorities);
+		log.debug('hasAnyAuthority', authorities);
 		// TODO
 		return true;
 	};
 
 	api.resetPasswordInit = function(mail) {
-		console.log('resetPasswordInit', mail);
+		log.debug('resetPasswordInit', mail);
 		return passwordResetInitResource.save({
 			mail: mail,
 			urlResetPassword: adamaConstant.urlResetPassword
@@ -938,7 +955,7 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 	};
 
 	api.updateAccount = function(principal) {
-		console.log('updateAccount', principal);
+		log.debug('updateAccount', principal);
 		return accountResource.save(principal, function() {
 			$rootScope.$emit('principal-update', {
 				principal: principal
@@ -948,7 +965,7 @@ angular.module('adama-mobile').factory('principalService', ["$rootScope", "$q", 
 	};
 
 	api.changePassword = function(newPassword) {
-		console.log('changePassword');
+		log.debug('changePassword');
 		return passwordResource.save({
 			password: newPassword
 		}).$promise;
