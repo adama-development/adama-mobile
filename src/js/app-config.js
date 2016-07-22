@@ -103,7 +103,8 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 	}
 });
 
-angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant) {
+angular.module('adama-mobile').run(function($rootScope, $injector, $log, adamaConstant) {
+	var log = $log.getInstance('adama-mobile.run.push');
 	var $ionicPlatform, $ionicPush, $ionicUser;
 	if (adamaConstant.enablePush) {
 		$ionicPlatform = $injector.get('$ionicPlatform');
@@ -116,17 +117,17 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 					$rootScope.$apply(function() {
 						// TODO notification management
 						var payload = $ionicPush.getPayload(notification);
-						console.log('notification, payload', notification, payload);
+						log.debug('notification, payload', notification, payload);
 						$rootScope.notification = notification;
 						$rootScope.payload = payload;
 						if (notification.app.asleep || notification.app.closed) {
 							// $state.go('tab.push');
-							console.log('application was asleep or closed');
+							log.debug('application was asleep or closed');
 						}
 					});
 				},
 				onRegister: function(data) {
-					console.log('Device token', data.token);
+					log.debug('Device token', data.token);
 				},
 				canShowAlert: false,
 				canSetBadge: true,
@@ -135,7 +136,7 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 			});
 			if ($ionicUser.current().isAuthenticated()) {
 				$ionicPush.register(function(data) {
-					console.log('register at startup ok', data);
+					log.debug('register at startup ok', data);
 					$ionicPush.saveToken(data);
 				});
 			} else {
@@ -144,11 +145,19 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 		});
 		$rootScope.$on('ionicuser-new', function() {
 			$ionicPush.register(function(data) {
-				console.log('register after signing in ok', data);
+				log.debug('register after signing in ok', data);
 			});
 		});
 		$rootScope.$on('principal-remove', function() {
 			$ionicPush.unregister();
 		});
 	}
+});
+
+angular.module('adama-mobile').config(function(logEnhancerProvider) {
+	logEnhancerProvider.prefixPattern = '%s::[%s]>';
+	logEnhancerProvider.datetimePattern = 'DD/MM/YYYY HH:mm:ss';
+	logEnhancerProvider.logLevels = {
+		'*': logEnhancerProvider.LEVEL.OFF
+	};
 });

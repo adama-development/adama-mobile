@@ -27,6 +27,7 @@
 		<script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.js"></script>
 		<script src="bower_components/angular-messages/angular-messages.js"></script>
 		<script src="bower_components/angular-jwt/dist/angular-jwt.min.js"></script>
+		<script src="bower_components/angular-logger/dist/angular-logger.min.js"></script>
 	
 		<!-- adama-mobile -->
 		<script src="adama-mobile/app.js"></script>
@@ -85,6 +86,12 @@
 		<script>
 			angular.module('adamaDemoApp').config(function(adamaConstant){
 				adamaConstant.apiBase = '/';
+			});
+			angular.module('adama-mobile').config(function (logEnhancerProvider) {
+				logEnhancerProvider.prefixPattern = '%s - %s: ';
+				logEnhancerProvider.logLevels = {
+					'adama-mobile' : logEnhancerProvider.LEVEL.TRACE
+				};
 			});
 		</script>
 	</head>

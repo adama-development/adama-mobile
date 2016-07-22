@@ -2,7 +2,8 @@
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $state, $ionicUser, adamaConstant) {
+angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $state, $ionicUser, $log, adamaConstant) {
+	var log = $log.getInstance('adama-mobile.services.principalService');
 	var api = {};
 	var principalPromise;
 	var ionicUser = $ionicUser.current();
@@ -19,15 +20,15 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 		var result;
 		ionicUser = $ionicUser.current();
 		isAuthenticated = ionicUser.isAuthenticated();
-		console.log('resetPrincipal');
-		console.log('resetPrincipal ionicUser', ionicUser);
-		console.log('resetPrincipal isAuthenticated', isAuthenticated);
+		log.debug('resetPrincipal');
+		log.debug('resetPrincipal ionicUser', ionicUser);
+		log.debug('resetPrincipal isAuthenticated', isAuthenticated);
 		if (isAuthenticated) {
 			var externalId = ionicUser.details['external_id'];
 			if (!externalId) {
 				// FIXME should not occur, every ionicuser should have an
 				// external_id
-				console.error('no external_id, redirect to signin');
+				log.info('no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {
 				principalPromise = $http({
@@ -44,11 +45,11 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 				result = principalPromise;
 			}
 		} else {
-			console.error('user is not authenticated');
+			log.info('user is not authenticated');
 			result = $q.reject('resetPrincipal : not authenticated');
 		}
 		return result.catch(function(rejection) {
-			console.log('there was a problem while reseting user info, redirect to signin');
+			log.debug('there was a problem while reseting user info, redirect to signin');
 			isAuthenticated = false;
 			principalPromise = undefined;
 			$state.go('auth.signin');
@@ -70,13 +71,13 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	};
 
 	api.hasAnyAuthority = function(authorities) {
-		console.log('hasAnyAuthority', authorities);
+		log.debug('hasAnyAuthority', authorities);
 		// TODO
 		return true;
 	};
 
 	api.resetPasswordInit = function(mail) {
-		console.log('resetPasswordInit', mail);
+		log.debug('resetPasswordInit', mail);
 		return passwordResetInitResource.save({
 			mail: mail,
 			urlResetPassword: adamaConstant.urlResetPassword
@@ -84,7 +85,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	};
 
 	api.updateAccount = function(principal) {
-		console.log('updateAccount', principal);
+		log.debug('updateAccount', principal);
 		return accountResource.save(principal, function() {
 			$rootScope.$emit('principal-update', {
 				principal: principal
@@ -94,7 +95,7 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 	};
 
 	api.changePassword = function(newPassword) {
-		console.log('changePassword');
+		log.debug('changePassword');
 		return passwordResource.save({
 			password: newPassword
 		}).$promise;
