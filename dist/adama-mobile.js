@@ -593,18 +593,18 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 
 	var ionicUser = $ionicUser.current();
 	$rootScope.$on('ionicuser-new', function() {
-		log.debug('adamaTokenService update ionicUser');
+		log.debug('update ionicUser');
 		ionicUser = $ionicUser.current();
 	});
 
 	api.getToken = function() {
-		log.debug('adamaTokenService.getToken');
+		log.debug('getToken');
 		var token;
 		if (ionicUser.isAuthenticated()) {
-			log.debug('adamaTokenService.getToken user is authenticated');
+			log.debug('getToken user is authenticated');
 			token = ionicUser.get('access_token');
 			if (token && jwtHelper.isTokenExpired(token)) {
-				log.debug('adamaTokenService.getToken token is expired');
+				log.debug('getToken token is expired');
 				return api.refreshAndGetToken();
 			}
 		}
@@ -612,7 +612,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 	};
 
 	api.refreshAndGetToken = function() {
-		log.debug('adamaTokenService.refreshAndGetToken');
+		log.debug('refreshAndGetToken');
 		var token = ionicUser.get('access_token');
 		if (!token) {
 			// FIXME should not occur as ionicUser should always have a
@@ -623,9 +623,9 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			log.debug('for debugging purpose, here is a JSON.stringify version of ionic current user', JSON.stringify(ionicUser));
 			return $q.reject('refreshAndGetToken : no token !!!!');
 		}
-		log.debug('adamaTokenService.refreshAndGetToken token', token);
+		log.debug('refreshAndGetToken token', token);
 		var refreshToken = ionicUser.get('refresh_token');
-		log.debug('adamaTokenService.refreshAndGetToken refreshToken', refreshToken);
+		log.debug('refreshAndGetToken refreshToken', refreshToken);
 		return $http({
 			method: 'POST',
 			url: adamaConstant.apiBase + 'login/refresh',
@@ -637,7 +637,7 @@ angular.module('adama-mobile').factory('adamaTokenService', ["$rootScope", "$htt
 			}
 		}).then(function(response) {
 			var newToken = response.data.access_token;
-			log.debug('adamaTokenService.refreshAndGetToken newToken', newToken);
+			log.debug('refreshAndGetToken newToken', newToken);
 			ionicUser.set('access_token', newToken);
 			return ionicUser.save().then(function() {
 				return newToken;
@@ -813,7 +813,7 @@ angular.module('adama-mobile').factory('notificationsService', ["$filter", "$cor
 	var translateFn = $filter('translate');
 
 	api.show = function(messageKey) {
-		log.debug('notifications show', messageKey);
+		log.debug('show', messageKey);
 		return $cordovaToast.show(translateFn(messageKey), 'short', 'bottom');
 	};
 
