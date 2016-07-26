@@ -5,12 +5,12 @@ angular.module('ngCordovaMocks').decorator('$cordovaBarcodeScanner', function($d
 
 	$delegate.scan = function() {
 		console.log('$cordovaBarcodeScanner scan');
-		var prompt = $window.prompt('Mocked scan? ("ko", "cancel" or what you want)');
+		var prompt = $window.prompt('Mocked scan? ("ko" to trigger an error)');
 		if (prompt === 'ko') {
 			console.log('$cordovaBarcodeScanner scan : KO');
 			return $q.reject('scan error');
 		}
-		if (prompt === 'cancel') {
+		if (prompt === null) {
 			console.log('$cordovaBarcodeScanner scan : cancel');
 			return $q.when({
 				text : '',
