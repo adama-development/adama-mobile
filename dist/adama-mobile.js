@@ -363,6 +363,9 @@ angular.module('adama-mobile').config(["$translateProvider", function($translate
 
 angular.module('adama-mobile').component('btnSignout', {
 	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	bindings: {
+		additionalClass: '@'
+	},
 	controller: ["authService", "$state", function(authService, $state) {
 		var ctrl = this;
 		ctrl.signout = function() {
