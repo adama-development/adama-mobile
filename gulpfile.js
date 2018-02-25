@@ -22,128 +22,129 @@ var plumber = require('gulp-plumber');
 require('gulp-release-tasks')(gulp);
 
 var config = {
-	mainPath : './src/',
-	targetPath : './dist/'
+	mainPath: './src/',
+	targetPath: './dist/'
 };
 
-var onError = function(err) {
+var onError = function (err) {
 	notify.onError({
-		title : 'Gulp',
-		subtitle : 'Failure!',
-		message : 'Error: <%= error.message %>',
-		sound : 'Pop'
+		title: 'Gulp',
+		subtitle: 'Failure!',
+		message: 'Error: <%= error.message %>',
+		sound: 'Pop'
 	})(err);
 	this.emit('end');
 };
 
-gulp.task('clean', function() {
+gulp.task('clean', function () {
 	return gulp.src(config.targetPath, {
-		read : false
+		read: false
 	}).pipe(clean());
 });
 
-gulp.task('js', function() {
-	var jsPipe = gulp.src([ config.mainPath + 'js/app.js', config.mainPath + 'js/**/*.js' ]) //
-	.pipe(plumber({
-		errorHandler : onError
-	})) //
-	.pipe(jshint()) //
-	.pipe(jshint.reporter('jshint-stylish')) //
-	.pipe(jscs()) //
-	.pipe(jscs.reporter()) //
-	.pipe(browserSync.stream()); //
+gulp.task('js', function () {
+	var jsPipe = gulp.src([config.mainPath + 'js/app.js', config.mainPath + 'js/**/*.js']) //
+		.pipe(plumber({
+			errorHandler: onError
+		})) //
+		.pipe(jshint()) //
+		.pipe(jshint.reporter('jshint-stylish')) //
+		.pipe(jscs()) //
+		.pipe(jscs.reporter()) //
+		.pipe(browserSync.stream()); //
 	if (gutil.env.type === 'production') {
 		jsPipe = jsPipe.pipe(prettify()) //
-		.pipe(gulp.dest(config.mainPath + 'js')) //
-		// angular annotation
-		.pipe(ngAnnotate());
+			.pipe(gulp.dest(config.mainPath + 'js')) //
+			// angular annotation
+			.pipe(ngAnnotate());
 
 		// Concat version
 		jsPipe.pipe(sourcemaps.init()) //
-		.pipe(concat('adama-mobile.js')) //
-		.pipe(sourcemaps.write('./')) //
-		.pipe(gulp.dest(config.targetPath));
+			.pipe(concat('adama-mobile.js')) //
+			.pipe(sourcemaps.write('./')) //
+			.pipe(gulp.dest(config.targetPath));
 
 		// Concat and minified version
 		jsPipe.pipe(sourcemaps.init()) //
-		.pipe(concat('adama-mobile-min.js')) //
-		.pipe(uglify()) //
-		.pipe(sourcemaps.write('./')) //
-		.pipe(gulp.dest(config.targetPath));
+			.pipe(concat('adama-mobile-min.js')) //
+			.pipe(uglify()) //
+			.pipe(sourcemaps.write('./')) //
+			.pipe(gulp.dest(config.targetPath));
 
 		// export template
 		gulp.src(config.mainPath + 'js/**/*.html') //
-		.pipe(templateCache('adama-mobile-templates.js', {
-			root : 'adama-mobile/',
-			module : 'adama-mobile'
-		})) //
-		.pipe(gulp.dest(config.targetPath));
+			.pipe(templateCache('adama-mobile-templates.js', {
+				root: 'adama-mobile/',
+				module: 'adama-mobile'
+			})) //
+			.pipe(gulp.dest(config.targetPath));
 	}
 	return jsPipe;
 });
 
-gulp.task('css', function() {
-	var cssPipe = gulp.src([ config.mainPath + 'scss/main.scss' ]) //
-	.pipe(plumber({
-		errorHandler : onError
-	})) //
-	.pipe(sassLint()) //
-	.pipe(sassLint.format()) //
-	.pipe(sass()) //
-	.pipe(autoprefixer({
-		browsers : [ 'last 2 versions', 'safari > 5' ]
-	})) //
-	.pipe(gulp.dest(config.targetPath)) //
-	.pipe(browserSync.stream()); //
+gulp.task('css', function () {
+	var cssPipe = gulp.src([config.mainPath + 'scss/main.scss']) //
+		.pipe(plumber({
+			errorHandler: onError
+		})) //
+		.pipe(sassLint()) //
+		.pipe(sassLint.format()) //
+		.pipe(sass()) //
+		.pipe(autoprefixer({
+			browsers: ['last 2 versions', 'safari > 5']
+		})) //
+		.pipe(gulp.dest(config.targetPath)) //
+		.pipe(browserSync.stream()); //
 	if (gutil.env.type === 'production') {
 		cssPipe.pipe(sourcemaps.init()) //
-		.pipe(cssnano()) //
-		.pipe(rename({
-			suffix : '.min'
-		})) //
-		.pipe(sourcemaps.write('./')) //
-		.pipe(gulp.dest(config.targetPath));
+			.pipe(cssnano()) //
+			.pipe(rename({
+				suffix: '.min'
+			})) //
+			.pipe(sourcemaps.write('./')) //
+			.pipe(gulp.dest(config.targetPath));
 	}
 	return cssPipe;
 });
 
-gulp.task('ionic.io', function() {
+gulp.task('ionic.io', function () {
 	var start = '"IONIC_SETTINGS_STRING_START";var settings =';
 	var ioconfig = 'IONIC_IO_SETTINGS';
-	var end =  '; return { get: function(setting) { if (settings[setting]) { return settings[setting]; } return null; } };"IONIC_SETTINGS_STRING_END"';
+	var end = '; return { get: function(setting) { if (settings[setting]) { return settings[setting]; } return null; } };"IONIC_SETTINGS_STRING_END"';
 	var replaceBy = start + ioconfig + end;
 	var pathToIonicIo = 'bower_components/ionic-platform-web-client/dist/';
-	var cssPipe = gulp.src([ pathToIonicIo + '*.js' ]) //
-	.pipe(replace(/"IONIC_SETTINGS_STRING_START.*IONIC_SETTINGS_STRING_END"/, replaceBy))
-	.pipe(gulp.dest('.tmp/'));
+	var cssPipe = gulp.src([pathToIonicIo + '*.js']) //
+		.pipe(replace(/"IONIC_SETTINGS_STRING_START.*IONIC_SETTINGS_STRING_END"/, replaceBy))
+		.pipe(gulp.dest('.tmp/'));
 });
 
-gulp.task('serve', [ 'ionic.io', 'js', 'css' ], function() {
+gulp.task('serve', ['ionic.io', 'js', 'css'], function () {
 	var demoFolder = 'demo-simple';
 	if (gutil.env.demo) {
 		demoFolder = 'demo-' + gutil.env.demo;
 	}
 	browserSync.init({
-		server : {
-			baseDir : [ demoFolder, '.tmp' ],
-			routes : {
-				'/adama-mobile' : config.mainPath + 'js/',
-				'/dist' : 'dist',
-				'/mocks' : 'mocks',
-				'/node_modules' : 'node_modules',
-				'/bower_components' : 'bower_components'
-			}
+		server: {
+			baseDir: [demoFolder, '.tmp'],
+			routes: {
+				'/adama-mobile': config.mainPath + 'js/',
+				'/dist': 'dist',
+				'/mocks': 'mocks',
+				'/node_modules': 'node_modules',
+				'/bower_components': 'bower_components'
+			},
 		},
-		open : false
+		port: 4000,
+		open: false
 	});
 
 	gulp.watch('demo*/**').on('change', browserSync.reload);
 	gulp.watch('mocks/**').on('change', browserSync.reload);
 	gulp.watch(config.mainPath + 'js/**/*.html').on('change', browserSync.reload);
-	gulp.watch([ config.mainPath + 'js/**/*.js' ], [ 'js' ]);
-	gulp.watch([ config.mainPath + 'scss/**/*.scss' ], [ 'css' ]);
+	gulp.watch([config.mainPath + 'js/**/*.js'], ['js']);
+	gulp.watch([config.mainPath + 'scss/**/*.scss'], ['css']);
 });
 
-gulp.task('default', [ 'serve' ]);
+gulp.task('default', ['serve']);
 
-gulp.task('build', [ 'js', 'css' ]);
+gulp.task('build', ['js', 'css']);

@@ -1,17 +1,11 @@
 <ion-view hide-nav-bar="true">
 	<ion-content overflow-scroll="false" padding="true" scroll="true" class="background">
 		<div class="logo-placeholder"></div>
-		<form
-			method="post"
-			name="signinForm"
-			ng-submit="$ctrl.signin(userName, userPassword)"
-			class="signin-form"
-		>
+		<form method="post" name="signinForm" ng-submit="$ctrl.signin(userName, userPassword)" class="signin-form">
 			<label class="item item-input">
 				<span class="sr-only" translate>SIGNIN_USERNAME</span>
 				<input
 					type="text"
-					id="userName"
 					class="input-label"
 					name="userName"
 					ng-model="userName"
@@ -24,7 +18,6 @@
 				<span class="sr-only" translate>SIGNIN_PASSWORD</span>
 				<input
 					type="password"
-					id="password"
 					class="input-label"
 					name="userPassword"
 					ng-model="userPassword"
@@ -33,11 +26,7 @@
 					autocomplete="off"
 				/>
 			</label>
-			<button
-				type="submit"
-				class="button button-assertive button-block"
-				ng-disabled="signinForm.$invalid || $ctrl.loading"
-			>
+			<button type="submit" class="button button-assertive button-block" ng-disabled="signinForm.$invalid || $ctrl.loading">
 				<span
 					ng-if="!$ctrl.loading"
 					translate
@@ -49,10 +38,7 @@
 			</button>
 		</form>
 		<div class="signin-addon-actions">
-			<a
-				ui-sref="^.recoverPassword"
-				translate
-			>SIGNIN_FORGET_PASSWORD</a>
+			<a ui-sref="^.recoverPassword" translate>SIGNIN_FORGET_PASSWORD</a>
 		</div>
 	</ion-content>
 </ion-view>
