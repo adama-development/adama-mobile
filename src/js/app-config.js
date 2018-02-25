@@ -103,57 +103,6 @@ angular.module('adama-mobile').run(function($rootScope, $injector, adamaConstant
 	}
 });
 
-angular.module('adama-mobile').run(function($rootScope, $injector, $log, adamaConstant) {
-	var log = $log.getInstance('adama-mobile.run.push');
-	var $ionicPlatform, $ionicPush, $ionicUser;
-	if (adamaConstant.enablePush) {
-		$ionicPlatform = $injector.get('$ionicPlatform');
-		$ionicPush = $injector.get('$ionicPush');
-		$ionicUser = $injector.get('$ionicUser');
-		$ionicPlatform.ready(function() {
-			$ionicPush.init({
-				debug: false,
-				onNotification: function(notification) {
-					$rootScope.$apply(function() {
-						// TODO notification management
-						var payload = $ionicPush.getPayload(notification);
-						log.debug('notification, payload', notification, payload);
-						$rootScope.notification = notification;
-						$rootScope.payload = payload;
-						if (notification.app.asleep || notification.app.closed) {
-							// $state.go('tab.push');
-							log.debug('application was asleep or closed');
-						}
-					});
-				},
-				onRegister: function(data) {
-					log.debug('Device token', data.token);
-				},
-				canShowAlert: false,
-				canSetBadge: true,
-				canPlaySound: true,
-				canRunActionsOnWake: true
-			});
-			if ($ionicUser.current().isAuthenticated()) {
-				$ionicPush.register(function(data) {
-					log.debug('register at startup ok', data);
-					$ionicPush.saveToken(data);
-				});
-			} else {
-				$ionicPush.unregister();
-			}
-		});
-		$rootScope.$on('ionicuser-new', function() {
-			$ionicPush.register(function(data) {
-				log.debug('register after signing in ok', data);
-			});
-		});
-		$rootScope.$on('principal-remove', function() {
-			$ionicPush.unregister();
-		});
-	}
-});
-
 angular.module('adama-mobile').config(function(logEnhancerProvider) {
 	logEnhancerProvider.prefixPattern = '%s::[%s]>';
 	logEnhancerProvider.datetimePattern = 'DD/MM/YYYY HH:mm:ss';

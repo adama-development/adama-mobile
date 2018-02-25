@@ -1,104 +1,107 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-		<title></title>
-		<link href="dist/main.css" rel="stylesheet">
 
-		<script>
-			var IONIC_IO_SETTINGS = {
-				app_id: 'fb8d9a06',
-				api_key: 'b835e98489e49237f4a2f9db3907c7f4b3e631261357efda'
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+	<title></title>
+	<link href="dist/main.css" rel="stylesheet">
+
+	<script>
+		var IONIC_IO_SETTINGS = {
+			app_id: 'fb8d9a06',
+			api_key: 'b835e98489e49237f4a2f9db3907c7f4b3e631261357efda'
+		};
+
+	</script>
+
+	<!-- ionic/angularjs js -->
+	<script src="bower_components/ionic/js/ionic.bundle.min.js"></script>
+	<script src="ionic.io.bundle.js"></script>
+	<script src="bower_components/ngCordova/dist/ng-cordova.js"></script>
+
+	<!-- vendors -->
+	<script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+	<script src="bower_components/angular-translate/angular-translate.js"></script>
+	<script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
+	<script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.js"></script>
+	<script src="bower_components/angular-messages/angular-messages.js"></script>
+	<script src="bower_components/angular-jwt/dist/angular-jwt.min.js"></script>
+	<script src="bower_components/angular-logger/dist/angular-logger.min.js"></script>
+
+	<!-- adama-mobile -->
+	<script src="adama-mobile/app.js"></script>
+	<script src="adama-mobile/app-config.js"></script>
+	<script src="adama-mobile/auth/accessDenied.controller.js"></script>
+	<script src="adama-mobile/auth/app.js"></script>
+	<script src="adama-mobile/auth/recoverPassword.controller.js"></script>
+	<script src="adama-mobile/auth/signin.controller.js"></script>
+	<script src="adama-mobile/btn-signout/app.js"></script>
+	<script src="adama-mobile/btn-signout/btn-signout.directive.js"></script>
+	<script src="adama-mobile/datasources/binary-file-url.datasource.js"></script>
+	<script src="adama-mobile/datasources/language.datasource.js"></script>
+	<script src="adama-mobile/datasources/principal-identity.datasource.js"></script>
+	<script src="adama-mobile/interceptors/auth-expired.interceptor.js"></script>
+	<script src="adama-mobile/interceptors/auth.interceptor.js"></script>
+	<script src="adama-mobile/resources/user.resource.js"></script>
+	<script src="adama-mobile/services/adama-token.service.js"></script>
+	<script src="adama-mobile/services/auth.service.js"></script>
+	<script src="adama-mobile/services/binary-file.service.js"></script>
+	<script src="adama-mobile/services/adama.constant.js"></script>
+	<script src="adama-mobile/services/adama-resource-config.service.js"></script>
+	<script src="adama-mobile/services/language.provider.js"></script>
+	<script src="adama-mobile/services/loading.service.js"></script>
+	<script src="adama-mobile/services/notifications.service.js"></script>
+	<script src="adama-mobile/services/page-title.service.js"></script>
+	<script src="adama-mobile/services/parse-links.service.js"></script>
+	<script src="adama-mobile/services/principal.service.js"></script>
+
+	<!-- mock -->
+	<script src="bower_components/ngCordova/dist/ng-cordova-mocks.js"></script>
+	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
+	<script src="mocks/app.js"></script>
+	<script src="mocks/$cordovaBadge.decorator.js"></script>
+	<script src="mocks/mock-settings.constant.js"></script>
+	<script src="mocks/auth.js"></script>
+	<script src="mocks/basic.js"></script>
+	<script src="mocks/binary-files.js"></script>
+	<script src="mocks/cordovaBarcodeScanner.decorator.js"></script>
+	<script src="mocks/cordovaInAppBrowser.js"></script>
+	<script src="mocks/external-login.js"></script>
+	<script src="mocks/httpBackend-with-latency.decorator.js"></script>
+	<script src="mocks/users.js"></script>
+	<script>
+		angular.module('adama-mobile').config(function(mockSettings) {
+			mockSettings.isLoggedAtStartup = true;
+		});
+
+	</script>
+
+	<!-- app' specifics -->
+	<!-- <script src="scripts/app.js"></script> -->
+	<script src="scripts/app-config.js"></script>
+	<script src="modules/main/app.js"></script>
+	<script src="modules/main/main.controller.js"></script>
+	<script src="modules/barcode-scanner/barcode-scanner.component.js"></script>
+
+	<script>
+		angular.module('adamaDemoApp').config(function(adamaConstant) {
+			adamaConstant.apiBase = '/';
+		});
+		angular.module('adama-mobile').config(function(logEnhancerProvider) {
+			logEnhancerProvider.prefixPattern = '%s - %s: ';
+			logEnhancerProvider.logLevels = {
+				'adama-mobile': logEnhancerProvider.LEVEL.TRACE
 			};
-		</script>
+		});
 
-		<!-- ionic/angularjs js -->
-		<script src="bower_components/ionic/js/ionic.bundle.min.js"></script>
-		<script src="ionic.io.bundle.js"></script>
-		<script src="bower_components/ngCordova/dist/ng-cordova.js"></script>
-	
-		<!-- vendors -->
-		<script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
-		<script src="bower_components/angular-resource/angular-resource.min.js"></script>
-		<script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
-		<script src="bower_components/angular-translate/angular-translate.js"></script>
-		<script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
-		<script src="bower_components/angular-translate-storage-local/angular-translate-storage-local.js"></script>
-		<script src="bower_components/angular-messages/angular-messages.js"></script>
-		<script src="bower_components/angular-jwt/dist/angular-jwt.min.js"></script>
-		<script src="bower_components/angular-logger/dist/angular-logger.min.js"></script>
-	
-		<!-- adama-mobile -->
-		<script src="adama-mobile/app.js"></script>
-		<script src="adama-mobile/app-config.js"></script>
-		<script src="adama-mobile/auth/accessDenied.controller.js"></script>
-		<script src="adama-mobile/auth/app.js"></script>
-		<script src="adama-mobile/auth/recoverPassword.controller.js"></script>
-		<script src="adama-mobile/auth/signin.controller.js"></script>
-		<script src="adama-mobile/btn-signout/app.js"></script>
-		<script src="adama-mobile/btn-signout/btn-signout.directive.js"></script>
-		<script src="adama-mobile/datasources/binary-file-url.datasource.js"></script>
-		<script src="adama-mobile/datasources/language.datasource.js"></script>
-		<script src="adama-mobile/datasources/principal-identity.datasource.js"></script>
-		<script src="adama-mobile/interceptors/auth-expired.interceptor.js"></script>
-		<script src="adama-mobile/interceptors/auth.interceptor.js"></script>
-		<script src="adama-mobile/resources/user.resource.js"></script>
-		<script src="adama-mobile/services/adama-token.service.js"></script>
-		<script src="adama-mobile/services/auth.service.js"></script>
-		<script src="adama-mobile/services/binary-file.service.js"></script>
-		<script src="adama-mobile/services/adama.constant.js"></script>
-		<script src="adama-mobile/services/adama-resource-config.service.js"></script>
-		<script src="adama-mobile/services/language.provider.js"></script>
-		<script src="adama-mobile/services/loading.service.js"></script>
-		<script src="adama-mobile/services/notifications.service.js"></script>
-		<script src="adama-mobile/services/page-title.service.js"></script>
-		<script src="adama-mobile/services/parse-links.service.js"></script>
-		<script src="adama-mobile/services/principal.service.js"></script>
+	</script>
+</head>
 
-		<!-- mock -->
-		<script src="bower_components/ngCordova/dist/ng-cordova-mocks.js"></script>
-		<script src="bower_components/angular-mocks/angular-mocks.js"></script>
-		<script src="mocks/app.js"></script>
-		<script src="mocks/$cordovaBadge.decorator.js"></script>
-		<script src="mocks/$ionicAuth.decorator.js"></script>
-		<script src="mocks/$ionicPush.decorator.js"></script>
-		<script src="mocks/$ionicUser.decorator.js"></script>
-		<script src="mocks/mock-settings.constant.js"></script>
-		<script src="mocks/auth.js"></script>
-		<script src="mocks/basic.js"></script>
-		<script src="mocks/binary-files.js"></script>
-		<script src="mocks/cordovaBarcodeScanner.decorator.js"></script>
-		<script src="mocks/cordovaInAppBrowser.js"></script>
-		<script src="mocks/external-login.js"></script>
-		<script src="mocks/httpBackend-with-latency.decorator.js"></script>
-		<script src="mocks/users.js"></script>
-		<script>
-			angular.module('adama-mobile').config(function(mockSettings){
-				mockSettings.isLoggedAtStartup = true;
-			});
-		</script>
-	
-		<!-- app' specifics -->
-		<!-- <script src="scripts/app.js"></script> -->
-		<script src="scripts/app-config.js"></script>
-		<script src="modules/main/app.js"></script>
-		<script src="modules/main/main.controller.js"></script>
-		<script src="modules/barcode-scanner/barcode-scanner.component.js"></script>
-	
-		<script>
-			angular.module('adamaDemoApp').config(function(adamaConstant){
-				adamaConstant.apiBase = '/';
-			});
-			angular.module('adama-mobile').config(function (logEnhancerProvider) {
-				logEnhancerProvider.prefixPattern = '%s - %s: ';
-				logEnhancerProvider.logLevels = {
-					'adama-mobile' : logEnhancerProvider.LEVEL.TRACE
-				};
-			});
-		</script>
-	</head>
-	<body ng-app="adamaDemoApp">
-		<ion-nav-view></ion-nav-view>
-	</body>
+<body ng-app="adamaDemoApp">
+	<ion-nav-view></ion-nav-view>
+</body>
+
 </html>

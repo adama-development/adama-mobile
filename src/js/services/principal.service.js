@@ -2,12 +2,11 @@
 /*jscs:disable requireDotNotation*/
 'use strict';
 
-angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $state, $ionicUser, $log, adamaConstant) {
+angular.module('adama-mobile').factory('principalService', function($rootScope, $q, $http, $resource, $state, localStorageService, $log, adamaConstant) {
 	var log = $log.getInstance('adama-mobile.services.principalService');
 	var api = {};
 	var principalPromise;
-	var ionicUser = $ionicUser.current();
-	var isAuthenticated = ionicUser.isAuthenticated();
+	var isAuthenticated = localStorageService.get('access_token') ? true : false;
 	var accountResource = $resource(adamaConstant.apiBase + 'account', {}, {});
 	var passwordResource = $resource(adamaConstant.apiBase + 'account/change_password', {}, {});
 	var passwordResetInitResource = $resource(adamaConstant.apiBase + 'account/reset_password/init', {}, {});
@@ -18,16 +17,12 @@ angular.module('adama-mobile').factory('principalService', function($rootScope, 
 
 	api.resetPrincipal = function() {
 		var result;
-		ionicUser = $ionicUser.current();
-		isAuthenticated = ionicUser.isAuthenticated();
+		isAuthenticated = localStorageService.get('access_token') ? true : false;
 		log.debug('resetPrincipal');
-		log.debug('resetPrincipal ionicUser', ionicUser);
 		log.debug('resetPrincipal isAuthenticated', isAuthenticated);
 		if (isAuthenticated) {
-			var externalId = ionicUser.details['external_id'];
+			var externalId = localStorageService.get('external_id');
 			if (!externalId) {
-				// FIXME should not occur, every ionicuser should have an
-				// external_id
 				log.info('no external_id, redirect to signin');
 				result = $q.reject('resetPrincipal : no external_id');
 			} else {

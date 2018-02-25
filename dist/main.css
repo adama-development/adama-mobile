@@ -6892,9 +6892,8 @@ button.item.item-button-right {
   display: block;
   -webkit-flex-shrink: 0;
   -ms-flex: 0 0 auto;
-  -webkit-flex-shrink: 0;
-      -ms-flex-negative: 0;
-          flex-shrink: 0;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
   width: 100%;
   height: 100%;
   position: relative; }
@@ -6908,8 +6907,7 @@ button.item.item-button-right {
   -webkit-box-align: start;
   -ms-flex-align: start;
   -webkit-align-items: flex-start;
-  -ms-grid-row-align: flex-start;
-      align-items: flex-start;
+  align-items: flex-start;
   -webkit-transition-property: -webkit-transform, height;
   -webkit-transition-property: height, -webkit-transform;
   transition-property: height, -webkit-transform;
@@ -9042,40 +9040,35 @@ a.button {
   -ms-flex-align: start;
   -webkit-align-items: flex-start;
   -moz-align-items: flex-start;
-  -ms-grid-row-align: flex-start;
-      align-items: flex-start; }
+  align-items: flex-start; }
 
 .row-bottom {
   -webkit-box-align: end;
   -ms-flex-align: end;
   -webkit-align-items: flex-end;
   -moz-align-items: flex-end;
-  -ms-grid-row-align: flex-end;
-      align-items: flex-end; }
+  align-items: flex-end; }
 
 .row-center {
   -webkit-box-align: center;
   -ms-flex-align: center;
   -webkit-align-items: center;
   -moz-align-items: center;
-  -ms-grid-row-align: center;
-      align-items: center; }
+  align-items: center; }
 
 .row-stretch {
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
   -webkit-align-items: stretch;
   -moz-align-items: stretch;
-  -ms-grid-row-align: stretch;
-      align-items: stretch; }
+  align-items: stretch; }
 
 .row-baseline {
   -webkit-box-align: baseline;
   -ms-flex-align: baseline;
   -webkit-align-items: baseline;
   -moz-align-items: baseline;
-  -ms-grid-row-align: baseline;
-      align-items: baseline; }
+  align-items: baseline; }
 
 /* .col-* vertically aligns an individual .col */
 .col-top {
@@ -9091,7 +9084,8 @@ a.button {
 .col-center {
   -webkit-align-self: center;
   -ms-flex-item-align: center;
-  align-self: center; }
+  -ms-grid-row-align: center;
+      align-self: center; }
 
 /* Column Offsets */
 .col-offset-10 {
