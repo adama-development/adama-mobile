@@ -131,34 +131,6 @@ angular.module('adama-mobile').config(["logEnhancerProvider", function(logEnhanc
 
 'use strict';
 
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	bindings: {
-		additionalClass: '@'
-	},
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
-
-'use strict';
-
 angular.module('adama-mobile').controller('AccessDeniedCtrl', function() {
 	// nothing to do
 });
@@ -324,81 +296,6 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 	};
 }]);
 
-'use strict';
-
-angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
-	return {
-		scope: false,
-		link: function(scope, element, attrs) {
-			var updateOutput = function(binaryFileList) {
-				if (attrs.output) {
-					binaryFileList = angular.copy(binaryFileList);
-				}
-				if (!angular.isArray(binaryFileList)) {
-					binaryFileList = [binaryFileList];
-				}
-				binaryFileService.initUrlForBinaryFiles(binaryFileList).then(function() {
-					if (attrs.output) {
-						$parse(attrs.output).assign(scope, binaryFileList);
-					}
-				});
-			};
-			scope.$watch(attrs.input, function() {
-				var binaryFileList = $parse(attrs.input)(scope);
-				if (binaryFileList) {
-					updateOutput(binaryFileList);
-				}
-			});
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').directive('dsLanguage', ["$parse", "language", function($parse, language) {
-	return {
-		scope: false,
-		link: function(scope, element, attrs) {
-			language.getAll().then(function(languages) {
-				$parse(attrs.data).assign(scope, languages);
-			});
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "$parse", "principalService", function($rootScope, $parse, principalService) {
-	return {
-		scope: false,
-		link: function(scope, element, attrs) {
-			$rootScope.$on('principal-new', function(event, data) {
-				$parse(attrs.data).assign(scope, data.principal);
-			});
-			$rootScope.$on('principal-remove', function() {
-				$parse(attrs.data).assign(scope, undefined);
-			});
-			principalService.getPrincipal().then(function(principal) {
-				$parse(attrs.data).assign(scope, principal);
-			});
-		}
-	};
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').factory('User', ["$resource", "adamaConstant", "adamaResourceConfig", function($resource, adamaConstant, adamaResourceConfig) {
-	var config = angular.extend({}, adamaResourceConfig, {
-		'delete': {
-			method: 'DELETE',
-			params: {
-				id: '@id'
-			}
-		}
-	});
-	return $resource(adamaConstant.apiBase + 'users/:id', {}, config);
-}]);
-
 /*jshint -W069 */
 /*jscs:disable requireDotNotation*/
 'use strict';
@@ -490,6 +387,109 @@ angular.module('adama-mobile').factory('authInterceptor', ["$injector", "$q", "$
 			return config;
 		}
 	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsBinaryFileUrl', ["$parse", "binaryFileService", function($parse, binaryFileService) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			var updateOutput = function(binaryFileList) {
+				if (attrs.output) {
+					binaryFileList = angular.copy(binaryFileList);
+				}
+				if (!angular.isArray(binaryFileList)) {
+					binaryFileList = [binaryFileList];
+				}
+				binaryFileService.initUrlForBinaryFiles(binaryFileList).then(function() {
+					if (attrs.output) {
+						$parse(attrs.output).assign(scope, binaryFileList);
+					}
+				});
+			};
+			scope.$watch(attrs.input, function() {
+				var binaryFileList = $parse(attrs.input)(scope);
+				if (binaryFileList) {
+					updateOutput(binaryFileList);
+				}
+			});
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsLanguage', ["$parse", "language", function($parse, language) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			language.getAll().then(function(languages) {
+				$parse(attrs.data).assign(scope, languages);
+			});
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').directive('dsPrincipalIdentity', ["$rootScope", "$parse", "principalService", function($rootScope, $parse, principalService) {
+	return {
+		scope: false,
+		link: function(scope, element, attrs) {
+			$rootScope.$on('principal-new', function(event, data) {
+				$parse(attrs.data).assign(scope, data.principal);
+			});
+			$rootScope.$on('principal-remove', function() {
+				$parse(attrs.data).assign(scope, undefined);
+			});
+			principalService.getPrincipal().then(function(principal) {
+				$parse(attrs.data).assign(scope, principal);
+			});
+		}
+	};
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	bindings: {
+		additionalClass: '@'
+	},
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
+
+'use strict';
+
+angular.module('adama-mobile').factory('User', ["$resource", "adamaConstant", "adamaResourceConfig", function($resource, adamaConstant, adamaResourceConfig) {
+	var config = angular.extend({}, adamaResourceConfig, {
+		'delete': {
+			method: 'DELETE',
+			params: {
+				id: '@id'
+			}
+		}
+	});
+	return $resource(adamaConstant.apiBase + 'users/:id', {}, config);
 }]);
 
 'use strict';
