@@ -131,6 +131,34 @@ angular.module('adama-mobile').config(["logEnhancerProvider", function(logEnhanc
 
 'use strict';
 
+angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
+	$translateProvider.translations('fr', {
+		'BTN_SIGNOUT': 'Déconnexion'
+	});
+
+	$translateProvider.translations('en', {
+		'BTN_SIGNOUT': 'Sign out'
+	});
+}]);
+
+'use strict';
+
+angular.module('adama-mobile').component('btnSignout', {
+	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
+	bindings: {
+		additionalClass: '@'
+	},
+	controller: ["authService", "$state", function(authService, $state) {
+		var ctrl = this;
+		ctrl.signout = function() {
+			authService.logout();
+			$state.go('auth.signin');
+		};
+	}]
+});
+
+'use strict';
+
 angular.module('adama-mobile').controller('AccessDeniedCtrl', function() {
 	// nothing to do
 });
@@ -295,34 +323,6 @@ angular.module('adama-mobile').controller('SigninCtrl', ["$rootScope", "$state",
 		});
 	};
 }]);
-
-'use strict';
-
-angular.module('adama-mobile').config(["$translateProvider", function($translateProvider) {
-	$translateProvider.translations('fr', {
-		'BTN_SIGNOUT': 'Déconnexion'
-	});
-
-	$translateProvider.translations('en', {
-		'BTN_SIGNOUT': 'Sign out'
-	});
-}]);
-
-'use strict';
-
-angular.module('adama-mobile').component('btnSignout', {
-	templateUrl: 'adama-mobile/btn-signout/btn-signout.html',
-	bindings: {
-		additionalClass: '@'
-	},
-	controller: ["authService", "$state", function(authService, $state) {
-		var ctrl = this;
-		ctrl.signout = function() {
-			authService.logout();
-			$state.go('auth.signin');
-		};
-	}]
-});
 
 'use strict';
 
